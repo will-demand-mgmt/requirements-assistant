@@ -755,6 +755,55 @@ function showToast(msg) {
 }
 
 updateModeIndicator();
+
+function navigateTo(e, url) {
+  e.preventDefault();
+  window.location.href = url;
+}
 </script>
+
+<!-- FOOTER -->
+<footer style="
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="
+      width:36px;height:36px;border-radius:50%;
+      background:linear-gradient(135deg,var(--accent),var(--accent2));
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:#000;
+      flex-shrink:0
+    ">AP</div>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--text)">Alberto Pavani</div>
+      <div style="font-size:10px;color:var(--text-dim);margin-top:1px">Senior Product &amp; Solution Delivery Engineer</div>
+    </div>
+  </div>
+  <div style="font-size:10px;color:var(--text-dim);text-align:center;line-height:1.6">
+    <div style="color:var(--text-mid);font-family:'Syne',sans-serif;font-weight:600">Requirements Intelligence Assistant</div>
+    <div>Companion tool · AI-Driven Demand Management</div>
+  </div>
+  <div style="text-align:right">
+    <a href="mailto:albpavani@gmail.com" style="
+      font-size:11px;color:var(--accent);text-decoration:none;
+      border-bottom:1px dashed rgba(0,229,160,0.4);
+      transition:opacity 0.2s;
+    " onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">albpavani@gmail.com</a>
+    <div style="font-size:10px;color:var(--text-dim);margin-top:3px">
+      <a href="https://will-demand-mgmt.github.io/demand-assistant/preview" 
+         onclick="navigateTo(event,'https://will-demand-mgmt.github.io/demand-assistant/preview')"
+         style="color:var(--text-dim);text-decoration:none;border-bottom:1px dashed var(--border)">
+        ← Demand Assistant
+      </a>
+    </div>
+  </div>
+</footer>
 </body>
 </html>
