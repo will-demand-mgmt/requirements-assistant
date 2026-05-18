@@ -688,7 +688,7 @@ function exportReview() {
 
 // ── GEMINI API ─────────────────────────────────────────
 async function callGemini(systemInstruction, contents) {
-  const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+  const model = "gemini-2.5-flash";
   const MAX_RETRIES = 3;
   const RETRY_DELAY_MS = 5000;
   let lastError = null;
@@ -700,7 +700,8 @@ async function callGemini(systemInstruction, contents) {
       ...contents
     ];
   }
-  for (const model of models) {
+  // single model, no loop needed
+  {
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
         const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
