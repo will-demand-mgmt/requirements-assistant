@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -214,20 +214,20 @@
   <div class="onboarding-card">
     <div style="font-size:36px;margin-bottom:12px">🧠</div>
     <h2>Requirements Assistant</h2>
-    <div class="free-badge">✦ Powered by Google Gemini — Gratuito</div>
+    <div class="free-badge">✦ Powered by Google Gemini — Free</div>
     <div class="info-box">
       Hai bisogno di una <strong>API key gratuita di Google Gemini</strong>. Niente carta di credito.<br>
       Vai su <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>, accedi con Google e clicca <strong>"Create API key"</strong>.
     </div>
     <div class="steps">
-      <div class="step"><div class="step-num">1</div><div>Apri <strong>aistudio.google.com/apikey</strong> in un altro tab</div></div>
-      <div class="step"><div class="step-num">2</div><div>Accedi con il tuo <strong>account Google</strong></div></div>
-      <div class="step"><div class="step-num">3</div><div>Clicca <strong>"Create API key"</strong> e copiala</div></div>
-      <div class="step"><div class="step-num">4</div><div>Incollala qui sotto e clicca <strong>Inizia</strong></div></div>
+      <div class="step"><div class="step-num">1</div><div>Open <strong>aistudio.google.com/apikey</strong> in another tab</div></div>
+      <div class="step"><div class="step-num">2</div><div>Sign in with your <strong>Google account</strong></div></div>
+      <div class="step"><div class="step-num">3</div><div>Click <strong>"Create API key"</strong> and copy it</div></div>
+      <div class="step"><div class="step-num">4</div><div>Paste it below and click <strong>Start</strong></div></div>
     </div>
     <input type="password" class="onboarding-input" id="onboardingKey" placeholder="AIzaSy..." />
-    <button class="btn-primary" onclick="saveApiKey()">Inizia →</button>
-    <p style="font-size:10px;color:var(--text-dim)">La key rimane solo in memoria del browser per questa sessione. Non viene mai salvata né condivisa.</p>
+    <button class="btn-primary" onclick="saveApiKey()">Start →</button>
+    <p style="font-size:10px;color:var(--text-dim)">The key stays only in browser memory for this session. It is never saved or shared.</p>
   </div>
 </div>
 
@@ -242,7 +242,7 @@
   </div>
   <div class="header-actions">
     <div class="status-dot" id="statusDot"></div>
-    <div style="font-size:11px;color:var(--text-dim)" id="statusText">Disconnesso</div>
+    <div style="font-size:11px;color:var(--text-dim)" id="statusText">Disconnected</div>
     <button class="btn-icon" title="Reset conversazione" onclick="resetChat()">↺</button>
     <button class="btn-icon" title="Esporta chat" onclick="exportChat()">↓</button>
     <button class="btn-icon" title="Cambia API Key" onclick="showApiOverlay()">⚙</button>
@@ -253,31 +253,31 @@
 <div class="app">
   <aside class="sidebar">
     <div class="sidebar-section">
-      <div class="sidebar-label">Modalità</div>
+      <div class="sidebar-label">Mode</div>
       <div class="mode-tabs">
         <button class="mode-tab active" onclick="setMode('create')" id="tab-create">
           <span class="mode-tab-icon">✦</span>
           <div class="mode-tab-info">
-            <div class="mode-tab-name">Crea da zero</div>
-            <div class="mode-tab-desc">Guidato passo-passo</div>
+            <div class="mode-tab-name">Create from scratch</div>
+            <div class="mode-tab-desc">Step-by-step guided</div>
           </div>
         </button>
         <button class="mode-tab" onclick="setMode('review')" id="tab-review">
           <span class="mode-tab-icon">◈</span>
           <div class="mode-tab-info">
-            <div class="mode-tab-name">Revisiona</div>
-            <div class="mode-tab-desc">Migliora un documento</div>
+            <div class="mode-tab-name">Review</div>
+            <div class="mode-tab-desc">Improve a document</div>
           </div>
         </button>
       </div>
     </div>
     <div class="sidebar-section">
-      <div class="sidebar-label">Tipo documento</div>
+      <div class="sidebar-label">Document type</div>
       <div class="doc-types">
         <button class="doc-type-btn active" onclick="setDocType(this,'BRD')">BRD — Business Requirements</button>
         <button class="doc-type-btn" onclick="setDocType(this,'FRD')">FRD — Functional Requirements</button>
         <button class="doc-type-btn" onclick="setDocType(this,'UserStory')">User Stories + AC</button>
-        <button class="doc-type-btn" onclick="setDocType(this,'Mixed')">Misto / Ibrido</button>
+        <button class="doc-type-btn" onclick="setDocType(this,'Mixed')">Mixed / Hybrid</button>
       </div>
     </div>
     <div class="api-config">
@@ -286,7 +286,7 @@
         <input type="password" class="api-input" id="apiKeyInput" placeholder="AIzaSy..." />
         <button class="api-toggle" onclick="toggleApiVis()">👁</button>
       </div>
-      <button class="btn-save-api" onclick="saveApiKeyFromSidebar()">Aggiorna Key</button>
+      <button class="btn-save-api" onclick="saveApiKeyFromSidebar()">Update Key</button>
     </div>
   </aside>
 
@@ -298,14 +298,14 @@
           <div class="msg-avatar">🧠</div>
           <div class="msg-bubble">
             <div class="welcome-card">
-              <h2>Benvenuto nel Requirements Assistant</h2>
-              <p>Sono qui per aiutarti a creare documenti di requirements di alta qualità, ottimizzati per sistemi AI di demand management.</p>
-              <p>Seleziona il tipo di documento nella sidebar e dimmi da dove vuoi partire, oppure scegli un punto di avvio rapido:</p>
+              <h2>Welcome to the Requirements Assistant</h2>
+              <p>I'm here to help you create high-quality requirements documents, optimized for AI demand management systems.</p>
+              <p>Select the document type in the sidebar and tell me where to start, or choose a quick start option:</p>
               <div class="quick-starts">
-                <button class="quick-start-btn" onclick="quickStart('Nuovo progetto software')">→ Nuovo progetto software</button>
-                <button class="quick-start-btn" onclick="quickStart('Migrazione sistema esistente')">→ Migrazione sistema esistente</button>
-                <button class="quick-start-btn" onclick="quickStart('Nuova feature su prodotto esistente')">→ Nuova feature</button>
-                <button class="quick-start-btn" onclick="quickStart('Integrazione tra sistemi')">→ Integrazione sistemi</button>
+                <button class="quick-start-btn" onclick="quickStart('New software project')">→ New software project</button>
+                <button class="quick-start-btn" onclick="quickStart('Existing system migration')">→ Existing system migration</button>
+                <button class="quick-start-btn" onclick="quickStart('New feature on existing product')">→ New feature</button>
+                <button class="quick-start-btn" onclick="quickStart('Systems integration')">→ Systems integration</button>
               </div>
             </div>
           </div>
@@ -313,12 +313,12 @@
       </div>
       <div class="chat-input-area">
         <div class="chat-input-wrap">
-          <textarea class="chat-input" id="chatInput" placeholder="Descrivi il tuo progetto o requirement..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+          <textarea class="chat-input" id="chatInput" placeholder="Describe your project or requirement..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
           <button class="btn-send" id="sendBtn" onclick="sendMessage()">→</button>
         </div>
         <div class="input-meta">
-          <span id="modeIndicator">Modalità: <strong style="color:var(--accent)">Crea BRD</strong></span>
-          <span>Shift+Enter per andare a capo</span>
+          <span id="modeIndicator">Mode: <strong style="color:var(--accent)">Create BRD</strong></span>
+          <span>Shift+Enter for new line</span>
         </div>
       </div>
     </div>
@@ -328,30 +328,30 @@
       <div class="review-layout">
         <div class="review-pane">
           <div class="pane-header">
-            <div class="pane-title">Documento originale</div>
+            <div class="pane-title">Original document</div>
             <div class="pane-badge">INPUT</div>
           </div>
-          <textarea class="review-textarea" id="reviewInput" placeholder="Incolla qui il tuo documento di requirements da revisionare...&#10;&#10;Può essere un BRD, FRD, una lista di user stories, o qualsiasi testo di requirements."></textarea>
+          <textarea class="review-textarea" id="reviewInput" placeholder="Paste your requirements document here for review...&#10;&#10;Can be a BRD, FRD, a list of user stories, or any requirements text."></textarea>
           <div class="review-actions">
             <select class="review-mode-select" id="reviewMode">
-              <option value="full">Revisione completa</option>
-              <option value="clarity">Solo chiarezza e ambiguità</option>
-              <option value="completeness">Solo completezza</option>
-              <option value="ai-ready">Ottimizza per AI</option>
-              <option value="rewrite">Riscrivi migliorato</option>
+              <option value="full">Full review</option>
+              <option value="clarity">Clarity & ambiguity only</option>
+              <option value="completeness">Completeness only</option>
+              <option value="ai-ready">Optimize for AI</option>
+              <option value="rewrite">Rewrite improved</option>
             </select>
-            <button class="btn-analyze" id="analyzeBtn" onclick="analyzeDocument()">Analizza →</button>
+            <button class="btn-analyze" id="analyzeBtn" onclick="analyzeDocument()">Analyze →</button>
           </div>
         </div>
         <div class="review-pane">
           <div class="pane-header">
-            <div class="pane-title">Analisi e suggerimenti</div>
+            <div class="pane-title">Analysis & suggestions</div>
             <div class="pane-badge" id="reviewBadge">OUTPUT</div>
           </div>
           <div class="review-output" id="reviewOutput">
             <div class="review-placeholder">
               <div class="icon">◈</div>
-              <div>Incolla il tuo documento a sinistra<br>e clicca <strong>Analizza</strong></div>
+              <div>Paste your document on the left<br>and click <strong>Analyze</strong></div>
             </div>
           </div>
         </div>
@@ -368,91 +368,91 @@ let currentMode = 'create';
 let isLoading = false;
 
 const SYSTEM_PROMPTS = {
-  BRD: `Sei un esperto Business Analyst e Requirements Engineer specializzato nella creazione di Business Requirements Documents (BRD) di alta qualità.
+  BRD: `You are an expert Business Analyst and Requirements Engineer specialized in creating high-quality Business Requirements Documents (BRD).
 
-Il tuo obiettivo è aiutare l'utente a produrre un BRD completo, chiaro, non ambiguo e ottimizzato per essere consumato da sistemi AI di demand management intelligence.
+Your goal is to help the user produce a complete, clear, unambiguous BRD optimized to be consumed by AI demand management intelligence systems.
 
-PROCESSO DI ELICITAZIONE:
-1. Prima comprendi il contesto di business (settore, azienda, stakeholders)
-2. Identifica il problema o opportunità di business
-3. Raccogli obiettivi, scope, vincoli e assunzioni
-4. Elicita i requisiti di business ad alto livello
-5. Definisci i criteri di successo e metriche
-6. Identifica dipendenze e rischi
+ELICITATION PROCESS:
+1. First understand the business context (industry, company, stakeholders)
+2. Identify the business problem or opportunity
+3. Gather objectives, scope, constraints and assumptions
+4. Elicit high-level business requirements
+5. Define success criteria and metrics
+6. Identify dependencies and risks
 
-FORMATO OUTPUT:
-- Sezioni chiare e gerarchiche
-- Ogni requisito SMART: Specifico, Misurabile, Raggiungibile, Rilevante, Temporalmente definito
-- ID univoci per ogni requirement (es. BR-001)
-- Priorità (MUST/SHOULD/COULD/WONT)
-- Assunzioni esplicite
+OUTPUT FORMAT:
+- Clear hierarchical sections
+- Every requirement SMART: Specific, Measurable, Achievable, Relevant, Time-bound
+- Unique IDs for each requirement (e.g. BR-001)
+- Priority (MUST/SHOULD/COULD/WONT)
+- Explicit assumptions
 
-STILE: Fai UNA domanda alla volta. Proponi le sezioni progressivamente e chiedi conferma.
-IMPORTANTE: Il documento sarà input per un sistema AI di demand management. Deve essere esplicito, senza ambiguità.`,
+STYLE: Ask ONE question at a time. Propose sections progressively and ask for confirmation.
+IMPORTANT: The document will be input for an AI demand management system. It must be explicit, unambiguous.`,
 
-  FRD: `Sei un esperto Functional Analyst specializzato nella creazione di Functional Requirements Documents (FRD).
+  FRD: `You are an expert Functional Analyst specialized in creating high-quality Functional Requirements Documents (FRD).
 
-PROCESSO:
-1. Comprendi contesto sistema e dipendenze
-2. Elicita requisiti funzionali per ogni modulo/area
-3. Definisci precondizioni, postcondizioni, flussi alternativi
+PROCESS:
+1. Understand system context and dependencies
+2. Elicit functional requirements for each module/area
+3. Define preconditions, postconditions, alternative flows
 
-FORMATO per ogni requisito:
-- ID: FR-XXX | Titolo
-- Descrizione: "Il sistema DEVE/DOVREBBE..."
-- Trigger, Precondizioni, Flusso principale, Flussi alternativi, Postcondizioni
-- Priorità: MUST/SHOULD/COULD/WONT
+FORMAT for each requirement:
+- ID: FR-XXX | Title
+- Description: "The system MUST/SHOULD..."
+- Trigger, Preconditions, Main flow, Alternative flows, Postconditions
+- Priority: MUST/SHOULD/COULD/WONT
 
-Fai UNA domanda alla volta. Sii ultra-preciso e non ambiguo.`,
+Ask ONE question at a time. Be ultra-precise and unambiguous.`,
 
-  UserStory: `Sei un esperto Agile Coach specializzato nella scrittura di User Stories di alta qualità.
+  UserStory: `You are an expert Agile Coach specialized in writing high-quality User Stories.
 
-FORMATO: "Come [RUOLO], voglio [AZIONE], in modo da [BENEFICIO]"
+FORMAT: "As a [ROLE], I want [ACTION], so that [BENEFIT]"
 
 ACCEPTANCE CRITERIA (Given-When-Then):
-- Given [precondizione]
-- When [azione]
-- Then [risultato atteso]
+- Given [precondition]
+- When [user action]
+- Then [expected result]
 
-Ogni story deve essere INVEST. Suggerisci story points (Fibonacci). Raggruppa in Epic se necessario.
-Fai UNA domanda alla volta.`,
+Every story must be INVEST. Suggest story points (Fibonacci). Group into Epics if needed.
+Ask ONE question at a time.`,
 
-  Mixed: `Sei un esperto Requirements Engineer. Adatta il formato al contesto: BRD per business, FRD per funzionale, User Stories per agile. Il documento deve essere ottimizzato per sistemi AI di demand management: esplicito, non ambiguo, con contesto sufficiente.`
+  Mixed: `You are an expert Requirements Engineer. Adapt the format to context: BRD for business, FRD for functional, User Stories for agile. The document must be optimized for AI demand management systems: explicit, unambiguous, with sufficient context.`
 };
 
 const REVIEW_PROMPTS = {
-  full: `Sei un esperto Requirements Reviewer. Analizza il documento e produci:
-1. SCORE COMPLESSIVO (0-100) con breakdown per dimensione
-2. Usa [CRITICO] per ambiguità, contraddizioni, requisiti non testabili
-3. Usa [MIGLIORAMENTO] per completezza, chiarezza, struttura
-4. Usa [SUGGERIMENTO] per ottimizzazioni aggiuntive
-5. VERSIONE MIGLIORATA delle sezioni più problematiche
-Il documento sarà input per sistemi AI di demand management.`,
-  clarity: `Analizza SOLO chiarezza e ambiguità. Usa [CRITICO]/[MIGLIORAMENTO] e proponi riformulazioni precise. Segnala termini vaghi senza metriche.`,
-  completeness: `Analizza SOLO completezza. Usa [CRITICO]/[MIGLIORAMENTO]. Verifica: edge case, stakeholder, requisiti non funzionali, gestione errori, criteri di accettazione.`,
-  'ai-ready': `Valuta quanto il documento è "AI-ready" per un sistema di demand management. Usa [CRITICO]/[MIGLIORAMENTO]/[SUGGERIMENTO]. Verifica: self-contained, riferimenti impliciti, struttura machine-readable, requisiti atomici. Produci versione ottimizzata.`,
-  rewrite: `Riscrivi il documento migliorato: aggiungi ID univoci, struttura in sezioni logiche, rendi ogni requisito testabile. Documento completo + changelog delle modifiche.`
+  full: `You are an expert Requirements Reviewer. Analyze the document and produce:
+1. OVERALL SCORE (0-100) with breakdown per dimension
+2. Use [CRITICAL] for ambiguity, contradictions, untestable requirements
+3. Use [IMPROVEMENT] for completeness, clarity, structure
+4. Use [SUGGESTION] for additional optimizations
+5. IMPROVED VERSION of the most problematic sections
+The document will be input for AI demand management systems.`,
+  clarity: `Analyze ONLY clarity and ambiguity. Use [CRITICAL]/[IMPROVEMENT] and propose precise reformulations. Flag vague terms without metrics.`,
+  completeness: `Analyze ONLY completeness. Use [CRITICAL]/[IMPROVEMENT]. Verify: edge cases, stakeholders, non-functional requirements, error handling, acceptance criteria.`,
+  'ai-ready': `Evaluate how "AI-ready" the document is for a demand management system. Use [CRITICAL]/[IMPROVEMENT]/[SUGGESTION]. Verify: self-contained, implicit references, machine-readable structure, atomic requirements. Produce optimized version.`,
+  rewrite: `Rewrite the document improved: add unique IDs, structure in logical sections, make every requirement testable. Full document + changelog of changes.`
 };
 
 // ── API KEY ────────────────────────────────────────────
 function saveApiKey() {
   const key = document.getElementById('onboardingKey').value.trim();
-  if (key.length < 10) { showToast('⚠️ Inserisci una key valida'); return; }
+  if (key.length < 10) { showToast('⚠️ Please enter a valid key'); return; }
   apiKey = key;
   document.getElementById('apiKeyInput').value = key;
   document.getElementById('onboardingOverlay').classList.remove('show');
   document.getElementById('statusDot').classList.add('active');
-  document.getElementById('statusText').textContent = 'Connesso · Gemini';
-  showToast('✓ Pronto!');
+  document.getElementById('statusText').textContent = 'Connected · Gemini';
+  showToast('✓ Ready!');
 }
 
 function saveApiKeyFromSidebar() {
   const key = document.getElementById('apiKeyInput').value.trim();
-  if (key.length < 10) { showToast('⚠️ Key non valida'); return; }
+  if (key.length < 10) { showToast('⚠️ Invalid key'); return; }
   apiKey = key;
   document.getElementById('statusDot').classList.add('active');
-  document.getElementById('statusText').textContent = 'Connesso · Gemini';
-  showToast('✓ API Key aggiornata');
+  document.getElementById('statusText').textContent = 'Connected · Gemini';
+  showToast('✓ API Key updated');
 }
 
 function showApiOverlay() {
@@ -482,8 +482,8 @@ function setDocType(btn, type) {
 }
 
 function updateModeIndicator() {
-  const labels = { BRD: 'Crea BRD', FRD: 'Crea FRD', UserStory: 'Crea User Stories', Mixed: 'Modalità Mista' };
-  document.getElementById('modeIndicator').innerHTML = 'Modalità: <strong style="color:var(--accent)">' + labels[currentDocType] + '</strong>';
+  const labels = { BRD: 'Create BRD', FRD: 'Create FRD', UserStory: 'Create User Stories', Mixed: 'Mixed Mode' };
+  document.getElementById('modeIndicator').innerHTML = 'Mode: <strong style="color:var(--accent)">' + labels[currentDocType] + '</strong>';
 }
 
 // ── CHAT ──────────────────────────────────────────────
@@ -502,7 +502,7 @@ function quickStart(topic) {
 }
 
 async function sendMessage() {
-  if (!apiKey) { showToast('⚠️ Inserisci prima la tua API key'); return; }
+  if (!apiKey) { showToast('⚠️ Please enter your API key first'); return; }
   if (isLoading) return;
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
@@ -520,7 +520,7 @@ async function sendMessage() {
     chatHistory.push({ role: 'model', parts: [{ text: response }] });
   } catch (err) {
     removeTypingIndicator();
-    addMessage('assistant', '❌ Errore: ' + err.message);
+    addMessage('assistant', '❌ Error: ' + err.message);
   } finally {
     setLoading(false);
   }
@@ -541,11 +541,11 @@ function addMessage(role, content) {
     actions.style.cssText = 'display:flex;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)';
     const copyBtn = document.createElement('button');
     copyBtn.className = 'btn-copy';
-    copyBtn.textContent = '⎘ Copia';
-    copyBtn.onclick = () => { navigator.clipboard.writeText(content); showToast('✓ Copiato'); };
+    copyBtn.textContent = '⎘ Copy';
+    copyBtn.onclick = () => { navigator.clipboard.writeText(content); showToast('✓ Copied'); };
     const dlBtn = document.createElement('button');
     dlBtn.className = 'btn-copy';
-    dlBtn.textContent = '↓ Scarica .txt';
+    dlBtn.textContent = '↓ Download .txt';
     dlBtn.onclick = () => downloadText(content, 'requirements-' + currentDocType + '-' + Date.now() + '.txt');
     actions.appendChild(copyBtn);
     actions.appendChild(dlBtn);
@@ -576,6 +576,14 @@ function addTypingIndicator() {
   container.scrollTop = container.scrollHeight;
 }
 
+function updateTypingMessage(msg) {
+  const el = document.getElementById('typingMsg');
+  if (el) {
+    const bubble = el.querySelector('.msg-bubble');
+    if (bubble) bubble.innerHTML = '<span style="font-size:11px;color:var(--text-dim)">' + msg + '</span>';
+  }
+}
+
 function removeTypingIndicator() {
   const el = document.getElementById('typingMsg');
   if (el) el.remove();
@@ -592,22 +600,22 @@ function resetChat() {
   container.innerHTML = '';
   const div = document.createElement('div');
   div.className = 'msg assistant';
-  div.innerHTML = '<div class="msg-avatar">🧠</div><div class="msg-bubble"><div class="welcome-card"><h2>Conversazione resettata</h2><p>Pronto per una nuova sessione. Seleziona il tipo di documento e dimmi da dove vuoi partire.</p><div class="quick-starts"><button class="quick-start-btn" onclick="quickStart(\'Nuovo progetto software\')">→ Nuovo progetto software</button><button class="quick-start-btn" onclick="quickStart(\'Nuova feature su prodotto esistente\')">→ Nuova feature</button></div></div></div>';
+  div.innerHTML = '<div class="msg-avatar">🧠</div><div class="msg-bubble"><div class="welcome-card"><h2>Conversation reset</h2><p>Ready for a new session. Select the document type and tell me where to start.</p><div class="quick-starts"><button class="quick-start-btn" onclick="quickStart(&apos;New software project&apos;)">→ New software project</button><button class="quick-start-btn" onclick="quickStart(&apos;New feature on existing product&apos;)">→ New feature</button></div></div></div>';
   container.appendChild(div);
-  showToast('✓ Conversazione resettata');
+  showToast('✓ Conversation reset');
 }
 
 function exportChat() {
-  if (chatHistory.length === 0) { showToast('⚠️ Nessuna conversazione da esportare'); return; }
+  if (chatHistory.length === 0) { showToast('⚠️ No conversation to export'); return; }
   let text = 'REQUIREMENTS ASSISTANT — Export\n';
-  text += 'Data: ' + new Date().toLocaleString('it-IT') + '\n';
-  text += 'Tipo documento: ' + currentDocType + '\n\n' + '='.repeat(60) + '\n\n';
+  text += 'Date: ' + new Date().toLocaleString('it-IT') + '\n';
+  text += 'Document type: ' + currentDocType + '\n\n' + '='.repeat(60) + '\n\n';
   chatHistory.forEach(msg => {
     const role = msg.role === 'model' ? 'ASSISTANT' : 'USER';
     text += '[' + role + ']\n' + msg.parts[0].text + '\n\n' + '-'.repeat(40) + '\n\n';
   });
   downloadText(text, 'requirements-chat-' + currentDocType + '-' + Date.now() + '.txt');
-  showToast('✓ Chat esportata');
+  showToast('✓ Chat exported');
 }
 
 function downloadText(content, filename) {
@@ -624,24 +632,24 @@ function downloadText(content, filename) {
 
 // ── REVIEW ────────────────────────────────────────────
 async function analyzeDocument() {
-  if (!apiKey) { showToast('⚠️ Inserisci prima la tua API key'); return; }
+  if (!apiKey) { showToast('⚠️ Please enter your API key first'); return; }
   const text = document.getElementById('reviewInput').value.trim();
-  if (!text) { showToast('⚠️ Inserisci un documento da analizzare'); return; }
+  if (!text) { showToast('⚠️ Please enter a document to analyze'); return; }
   const mode = document.getElementById('reviewMode').value;
   const btn = document.getElementById('analyzeBtn');
   btn.disabled = true;
-  btn.textContent = 'Analisi...';
+  btn.textContent = 'Analyzing...';
   document.getElementById('reviewOutput').innerHTML = '<div class="review-placeholder"><div class="icon">⟳</div><div>Analisi in corso...</div></div>';
   try {
     const prompt = REVIEW_PROMPTS[mode] + '\n\nDocumento da analizzare:\n\n' + text;
     const result = await callGemini(null, [{ role: 'user', parts: [{ text: prompt }] }]);
     renderReviewOutput(result);
-    document.getElementById('reviewBadge').textContent = 'PRONTO';
+    document.getElementById('reviewBadge').textContent = 'READY';
   } catch (err) {
     document.getElementById('reviewOutput').innerHTML = '<div style="color:var(--danger);padding:20px">❌ ' + err.message + '</div>';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Analizza →';
+    btn.textContent = 'Analyze →';
   }
 }
 
@@ -651,68 +659,87 @@ function renderReviewOutput(text) {
   const lines = text.split('\n');
   let html = '';
   for (const line of lines) {
-    if (line.includes('[CRITICO]')) {
-      html += '<div class="improvement-item"><span class="improvement-tag tag-critical">CRITICO</span><div class="improvement-text">' + line.replace('[CRITICO]', '').trim() + '</div></div>';
-    } else if (line.includes('[MIGLIORAMENTO]')) {
-      html += '<div class="improvement-item"><span class="improvement-tag tag-improve">MIGLIORAMENTO</span><div class="improvement-text">' + line.replace('[MIGLIORAMENTO]', '').trim() + '</div></div>';
-    } else if (line.includes('[SUGGERIMENTO]')) {
-      html += '<div class="improvement-item"><span class="improvement-tag tag-suggest">SUGGERIMENTO</span><div class="improvement-text">' + line.replace('[SUGGERIMENTO]', '').trim() + '</div></div>';
+    if (line.includes('[CRITICAL]')) {
+      html += '<div class="improvement-item"><span class="improvement-tag tag-critical">CRITICAL</span><div class="improvement-text">' + line.replace('[CRITICAL]', '').trim() + '</div></div>';
+    } else if (line.includes('[IMPROVEMENT]')) {
+      html += '<div class="improvement-item"><span class="improvement-tag tag-improve">IMPROVEMENT</span><div class="improvement-text">' + line.replace('[IMPROVEMENT]', '').trim() + '</div></div>';
+    } else if (line.includes('[SUGGESTION]')) {
+      html += '<div class="improvement-item"><span class="improvement-tag tag-suggest">SUGGESTION</span><div class="improvement-text">' + line.replace('[SUGGESTION]', '').trim() + '</div></div>';
     } else if (line.match(/^#{1,3} /)) {
       html += '<h3 style="font-family:\'Syne\',sans-serif;font-size:13px;color:var(--accent);margin:16px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--border)">' + line.replace(/^#{1,3} /, '') + '</h3>';
     } else if (line.trim()) {
       html += '<p style="margin-bottom:8px;font-size:12px;line-height:1.7;color:var(--text-mid)">' + formatMessage(line) + '</p>';
     }
   }
-  html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:8px"><button class="btn-copy" onclick="copyReview()">⎘ Copia analisi</button><button class="btn-copy" onclick="exportReview()">↓ Scarica .txt</button></div>';
+  html += '<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:8px"><button class="btn-copy" onclick="copyReview()">⎘ Copy analisi</button><button class="btn-copy" onclick="exportReview()">↓ Download .txt</button></div>';
   output.innerHTML = html;
 }
 
 function copyReview() {
   navigator.clipboard.writeText(document.getElementById('reviewOutput')._rawText || '');
-  showToast('✓ Copiato');
+  showToast('✓ Copied');
 }
 
 function exportReview() {
   const text = document.getElementById('reviewOutput')._rawText || '';
   downloadText('REQUIREMENTS REVIEW — ' + new Date().toLocaleString('it-IT') + '\n\n' + text, 'requirements-review-' + Date.now() + '.txt');
-  showToast('✓ Scaricato');
+  showToast('✓ Downloaded');
 }
 
 // ── GEMINI API ─────────────────────────────────────────
 async function callGemini(systemInstruction, contents) {
   const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+  const MAX_RETRIES = 3;
+  const RETRY_DELAY_MS = 5000;
   let lastError = null;
-  // Inject system instruction as first user/model exchange (v1beta workaround)
   let fullContents = contents;
   if (systemInstruction) {
     fullContents = [
-      { role: "user", parts: [{ text: "Istruzioni di sistema: " + systemInstruction }] },
-      { role: "model", parts: [{ text: "Capito. Seguiro esattamente queste istruzioni." }] },
+      { role: "user", parts: [{ text: "System instructions: " + systemInstruction }] },
+      { role: "model", parts: [{ text: "Understood. I will follow these instructions exactly." }] },
       ...contents
     ];
   }
   for (const model of models) {
-    try {
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
-      const body = { contents: fullContents, generationConfig: { maxOutputTokens: 4096, temperature: 0.7 } };
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        const msg = err.error?.message || "HTTP " + response.status;
-        if (response.status === 404 || (msg && msg.includes("not found"))) { lastError = new Error(msg); continue; }
-        throw new Error(msg);
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+        const body = { contents: fullContents, generationConfig: { maxOutputTokens: 4096, temperature: 0.7 } };
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const msg = err.error?.message || "HTTP " + response.status;
+          if (response.status === 404 || (msg && msg.includes("not found"))) { lastError = new Error(msg); break; }
+          if (response.status === 503 || response.status === 429 || msg.includes("high demand") || msg.includes("overloaded") || msg.includes("quota")) {
+            if (attempt < MAX_RETRIES) {
+              updateTypingMessage("Server busy, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")");
+              await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+              continue;
+            }
+            lastError = new Error(msg); break;
+          }
+          throw new Error(msg);
+        }
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error("Risposta vuota dal modello");
+        return text;
+      } catch (err) {
+        if (err.message && err.message.includes("not found")) { lastError = err; break; }
+        if (err.message && (err.message.includes("high demand") || err.message.includes("overloaded"))) {
+          if (attempt < MAX_RETRIES) {
+            updateTypingMessage("Server busy, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")");
+            await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+            continue;
+          }
+          lastError = err; break;
+        }
+        throw err;
       }
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!text) throw new Error("Risposta vuota dal modello");
-      return text;
-    } catch (err) {
-      if (err.message && err.message.includes("not found")) { lastError = err; continue; }
-      throw err;
     }
   }
   throw lastError || new Error("Nessun modello disponibile");
