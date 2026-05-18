@@ -680,23 +680,34 @@ function exportReview() {
 
 // ── GEMINI API ─────────────────────────────────────────
 async function callGemini(systemInstruction, contents) {
-  const model = 'gemini-1.5-flash-latest';
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + apiKey;
-  const body = { contents, generationConfig: { maxOutputTokens: 4096, temperature: 0.7 } };
-  if (systemInstruction) body.system_instruction = { parts: [{ text: systemInstruction }] };
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.error?.message || 'HTTP ' + response.status);
+  const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+  let lastError = null;
+  for (const model of models) {
+    try {
+      const url = "https://generativelanguage.googleapis.com/v1/models/" + model + ":generateContent?key=" + apiKey;
+      const body = { contents, generationConfig: { maxOutputTokens: 4096, temperature: 0.7 } };
+      if (systemInstruction) body.system_instruction = { parts: [{ text: systemInstruction }] };
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        const msg = err.error?.message || "HTTP " + response.status;
+        if (response.status === 404 || (msg && msg.includes("not found"))) { lastError = new Error(msg); continue; }
+        throw new Error(msg);
+      }
+      const data = await response.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Risposta vuota dal modello");
+      return text;
+    } catch (err) {
+      if (err.message && err.message.includes("not found")) { lastError = err; continue; }
+      throw err;
+    }
   }
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Risposta vuota dal modello');
-  return text;
+  throw lastError || new Error("Nessun modello disponibile");
 }
 
 // ── TOAST ─────────────────────────────────────────────
