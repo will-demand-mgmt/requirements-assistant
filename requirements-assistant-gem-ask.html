@@ -205,6 +205,48 @@
   .onboarding-input:focus { border-color: var(--accent); }
   .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); border: none; border-radius: var(--radius-sm); padding: 12px 32px; color: #000; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; width: 100%; transition: opacity 0.2s; margin-bottom: 10px; }
   .btn-primary:hover { opacity: 0.85; }
+
+  /* PROVIDER SELECTOR */
+  .provider-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+  .provider-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; border-radius: var(--radius-sm);
+    border: 1px solid var(--border); background: var(--bg);
+    cursor: pointer; transition: all 0.2s; position: relative;
+  }
+  .provider-card:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .provider-card.selected { border-color: var(--accent); background: var(--accent-dim); }
+  .provider-card input[type=radio] { display: none; }
+  .provider-icon { font-size: 18px; flex-shrink: 0; }
+  .provider-info { flex: 1; }
+  .provider-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; color: var(--text); }
+  .provider-limit { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .provider-badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #000; flex-shrink: 0;
+  }
+  .provider-radio {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1px solid var(--border); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .provider-card.selected .provider-radio {
+    border-color: var(--accent); background: var(--accent);
+  }
+  .provider-card.selected .provider-radio::after {
+    content: ''; width: 6px; height: 6px; border-radius: 50%; background: #000;
+  }
+  /* WIZARD STEPS */
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; }
+  .wizard-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+  .wizard-back { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 18px; padding: 0; line-height: 1; transition: color 0.2s; }
+  .wizard-back:hover { color: var(--accent); }
+  .wizard-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; flex: 1; }
+
 </style>
 </head>
 <body>
@@ -214,20 +256,67 @@
   <div class="onboarding-card">
     <div style="font-size:36px;margin-bottom:12px">🧠</div>
     <h2>Requirements Assistant</h2>
-    <div class="free-badge">✦ Powered by Google Gemini — Free</div>
-    <div class="info-box">
-      Hai bisogno di una <strong>API key gratuita di Google Gemini</strong>. Niente carta di credito.<br>
-      Vai su <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>, accedi con Google e clicca <strong>"Create API key"</strong>.
+    <p style="margin-bottom:20px">Choose your AI provider and enter your free API key to get started.</p>
+
+    <!-- STEP 1: Choose provider -->
+    <div class="wizard-step active" id="wizardStep1">
+      <div class="sidebar-label" style="margin-bottom:12px">Select AI provider</div>
+      <div class="provider-grid">
+        <label class="provider-card" onclick="selectProvider('groq', this)">
+          <input type="radio" name="provider" value="groq">
+          <div class="provider-radio"></div>
+          <div class="provider-icon">⚡</div>
+          <div class="provider-info">
+            <div class="provider-name">Groq</div>
+            <div class="provider-limit">Free · 14,400 requests/day · Llama 3.3 70B</div>
+          </div>
+          <div class="provider-badge">Recommended</div>
+        </label>
+        <label class="provider-card" onclick="selectProvider('gemini', this)">
+          <input type="radio" name="provider" value="gemini">
+          <div class="provider-radio"></div>
+          <div class="provider-icon">✦</div>
+          <div class="provider-info">
+            <div class="provider-name">Google Gemini</div>
+            <div class="provider-limit">Free · 50 requests/day · Gemini 2.5 Flash</div>
+          </div>
+        </label>
+        <label class="provider-card" onclick="selectProvider('openrouter', this)">
+          <input type="radio" name="provider" value="openrouter">
+          <div class="provider-radio"></div>
+          <div class="provider-icon">🔀</div>
+          <div class="provider-info">
+            <div class="provider-name">OpenRouter</div>
+            <div class="provider-limit">Free · mixed models · no credit card</div>
+          </div>
+        </label>
+        <label class="provider-card" onclick="selectProvider('cohere', this)">
+          <input type="radio" name="provider" value="cohere">
+          <div class="provider-radio"></div>
+          <div class="provider-icon">🌊</div>
+          <div class="provider-info">
+            <div class="provider-name">Cohere</div>
+            <div class="provider-limit">Free trial · Command R · no credit card</div>
+          </div>
+        </label>
+      </div>
+      <button class="btn-primary" id="btnStep1Next" onclick="goToStep2()" style="opacity:0.3;pointer-events:none">
+        Continue →
+      </button>
     </div>
-    <div class="steps">
-      <div class="step"><div class="step-num">1</div><div>Open <strong>aistudio.google.com/apikey</strong> in another tab</div></div>
-      <div class="step"><div class="step-num">2</div><div>Sign in with your <strong>Google account</strong></div></div>
-      <div class="step"><div class="step-num">3</div><div>Click <strong>"Create API key"</strong> and copy it</div></div>
-      <div class="step"><div class="step-num">4</div><div>Paste it below and click <strong>Start</strong></div></div>
+
+    <!-- STEP 2: Enter API key -->
+    <div class="wizard-step" id="wizardStep2">
+      <div class="wizard-header">
+        <button class="wizard-back" onclick="goToStep1()">←</button>
+        <div class="wizard-title" id="step2Title">Enter your API key</div>
+      </div>
+      <div class="info-box" id="step2InfoBox"></div>
+      <div class="steps" id="step2Steps"></div>
+      <input type="password" class="onboarding-input" id="onboardingKey" placeholder="" />
+      <button class="btn-primary" onclick="saveApiKey()">Start →</button>
+      <p style="font-size:10px;color:var(--text-dim);margin-top:6px">The key stays only in browser memory for this session. It is never saved or shared.</p>
     </div>
-    <input type="password" class="onboarding-input" id="onboardingKey" placeholder="AIzaSy..." />
-    <button class="btn-primary" onclick="saveApiKey()">Start →</button>
-    <p style="font-size:10px;color:var(--text-dim)">The key stays only in browser memory for this session. It is never saved or shared.</p>
   </div>
 </div>
 
@@ -375,6 +464,7 @@
 
 <script>
 let apiKey = '';
+let currentProvider = 'groq';
 let chatHistory = [];
 let currentDocType = 'BRD';
 let currentMode = 'create';
@@ -447,6 +537,82 @@ The document will be input for AI demand management systems.`,
   rewrite: `Rewrite the document improved: add unique IDs, structure in logical sections, make every requirement testable. Full document + changelog of changes.`
 };
 
+// ── PROVIDER CONFIG ───────────────────────────────────
+const PROVIDERS = {
+  groq: {
+    name: 'Groq',
+    placeholder: 'gsk_...',
+    infoBox: 'Free API key — no credit card required.<br>Go to <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a>, sign in and click <strong>"Create API key"</strong>.',
+    steps: [
+      'Open <strong>console.groq.com/keys</strong> in another tab',
+      'Sign in or create a free account',
+      'Click <strong>"Create API key"</strong> and copy it',
+      'Paste it below and click <strong>Start</strong>'
+    ]
+  },
+  gemini: {
+    name: 'Google Gemini',
+    placeholder: 'AIzaSy...',
+    infoBox: 'Free API key — no credit card required.<br>Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>, sign in with Google and click <strong>"Create API key"</strong>.<br><span style="color:var(--warn)">⚠️ Note: free tier not available in EU/UK.</span>',
+    steps: [
+      'Open <strong>aistudio.google.com/apikey</strong> in another tab',
+      'Sign in with your <strong>Google account</strong>',
+      'Click <strong>"Create API key"</strong> and copy it',
+      'Paste it below and click <strong>Start</strong>'
+    ]
+  },
+  openrouter: {
+    name: 'OpenRouter',
+    placeholder: 'sk-or-v1-...',
+    infoBox: 'Free API key — no credit card required.<br>Go to <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>, sign in and create a key. Select a free model like <strong>google/gemma-2-9b-it:free</strong>.',
+    steps: [
+      'Open <strong>openrouter.ai/keys</strong> in another tab',
+      'Sign in or create a free account',
+      'Click <strong>"Create Key"</strong> and copy it',
+      'Paste it below and click <strong>Start</strong>'
+    ]
+  },
+  cohere: {
+    name: 'Cohere',
+    placeholder: '...',
+    infoBox: 'Free trial key — no credit card required.<br>Go to <a href="https://dashboard.cohere.com/api-keys" target="_blank">dashboard.cohere.com/api-keys</a>, sign in and copy your trial key.',
+    steps: [
+      'Open <strong>dashboard.cohere.com/api-keys</strong> in another tab',
+      'Sign in or create a free account',
+      'Copy your <strong>trial API key</strong>',
+      'Paste it below and click <strong>Start</strong>'
+    ]
+  }
+};
+
+function selectProvider(provider, el) {
+  currentProvider = provider;
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  const btn = document.getElementById('btnStep1Next');
+  btn.style.opacity = '1';
+  btn.style.pointerEvents = 'auto';
+}
+
+function goToStep2() {
+  if (!currentProvider) return;
+  const p = PROVIDERS[currentProvider];
+  document.getElementById('step2Title').textContent = p.name + ' — API Key';
+  document.getElementById('step2InfoBox').innerHTML = p.infoBox;
+  document.getElementById('onboardingKey').placeholder = p.placeholder;
+  const stepsHtml = p.steps.map((s, i) =>
+    '<div class="step"><div class="step-num">' + (i+1) + '</div><div>' + s + '</div></div>'
+  ).join('');
+  document.getElementById('step2Steps').innerHTML = stepsHtml;
+  document.getElementById('wizardStep1').classList.remove('active');
+  document.getElementById('wizardStep2').classList.add('active');
+}
+
+function goToStep1() {
+  document.getElementById('wizardStep2').classList.remove('active');
+  document.getElementById('wizardStep1').classList.add('active');
+}
+
 // ── API KEY ────────────────────────────────────────────
 function saveApiKey() {
   const key = document.getElementById('onboardingKey').value.trim();
@@ -455,7 +621,7 @@ function saveApiKey() {
   document.getElementById('apiKeyInput').value = key;
   document.getElementById('onboardingOverlay').classList.remove('show');
   document.getElementById('statusDot').classList.add('active');
-  document.getElementById('statusText').textContent = 'Connected · Gemini';
+  document.getElementById('statusText').textContent = 'Connected · ' + PROVIDERS[currentProvider].name;
   showToast('✓ Ready!');
 }
 
@@ -464,12 +630,14 @@ function saveApiKeyFromSidebar() {
   if (key.length < 10) { showToast('⚠️ Invalid key'); return; }
   apiKey = key;
   document.getElementById('statusDot').classList.add('active');
-  document.getElementById('statusText').textContent = 'Connected · Gemini';
+  document.getElementById('statusText').textContent = 'Connected · ' + PROVIDERS[currentProvider].name;
   showToast('✓ API Key updated');
 }
 
 function showApiOverlay() {
   document.getElementById('onboardingKey').value = '';
+  document.getElementById('wizardStep2').classList.remove('active');
+  document.getElementById('wizardStep1').classList.add('active');
   document.getElementById('onboardingOverlay').classList.add('show');
 }
 
@@ -699,64 +867,127 @@ function exportReview() {
   showToast('✓ Downloaded');
 }
 
-// ── GEMINI API ─────────────────────────────────────────
+// ── AI API (multi-provider) ───────────────────────────
 async function callGemini(systemInstruction, contents) {
-  const model = "gemini-2.5-flash";
   const MAX_RETRIES = 3;
   const RETRY_DELAY_MS = 5000;
-  let lastError = null;
-  let fullContents = contents;
-  if (systemInstruction) {
-    fullContents = [
-      { role: "user", parts: [{ text: "System instructions: " + systemInstruction }] },
-      { role: "model", parts: [{ text: "Understood. I will follow these instructions exactly." }] },
-      ...contents
-    ];
-  }
-  // single model, no loop needed
-  {
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      try {
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      let response;
+
+      if (currentProvider === 'gemini') {
+        // ── GEMINI ──────────────────────────────────────
+        const model = "gemini-2.5-flash";
+        let fullContents = contents;
+        if (systemInstruction) {
+          fullContents = [
+            { role: "user", parts: [{ text: "System instructions: " + systemInstruction }] },
+            { role: "model", parts: [{ text: "Understood. I will follow these instructions exactly." }] },
+            ...contents
+          ];
+        }
         const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
-        const body = { contents: fullContents, generationConfig: { maxOutputTokens: 4096, temperature: 0.7 } };
-        const response = await fetch(url, {
+        response = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
+          body: JSON.stringify({ contents: fullContents, generationConfig: { maxOutputTokens: 4096, temperature: 0.7 } })
         });
         if (!response.ok) {
           const err = await response.json().catch(() => ({}));
           const msg = err.error?.message || "HTTP " + response.status;
-          if (response.status === 404 || (msg && msg.includes("not found"))) { lastError = new Error(msg); break; }
           if (response.status === 503 || response.status === 429 || msg.includes("high demand") || msg.includes("overloaded") || msg.includes("quota")) {
-            if (attempt < MAX_RETRIES) {
-              updateTypingMessage("Server busy, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")");
-              await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
-              continue;
-            }
-            lastError = new Error(msg); break;
+            if (attempt < MAX_RETRIES) { updateTypingMessage("Server busy, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")"); await new Promise(r => setTimeout(r, RETRY_DELAY_MS)); continue; }
           }
           throw new Error(msg);
         }
         const data = await response.json();
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error("Risposta vuota dal modello");
+        if (!text) throw new Error("Empty response from model");
         return text;
-      } catch (err) {
-        if (err.message && err.message.includes("not found")) { lastError = err; break; }
-        if (err.message && (err.message.includes("high demand") || err.message.includes("overloaded"))) {
-          if (attempt < MAX_RETRIES) {
-            updateTypingMessage("Server busy, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")");
-            await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
-            continue;
+
+      } else if (currentProvider === 'groq') {
+        // ── GROQ ────────────────────────────────────────
+        const messages = [];
+        if (systemInstruction) messages.push({ role: "system", content: systemInstruction });
+        contents.forEach(c => messages.push({ role: c.role === 'model' ? 'assistant' : c.role, content: c.parts[0].text }));
+        response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
+          body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages, max_tokens: 4096, temperature: 0.7 })
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const msg = err.error?.message || "HTTP " + response.status;
+          if (response.status === 429) {
+            if (attempt < MAX_RETRIES) { updateTypingMessage("Rate limit, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")"); await new Promise(r => setTimeout(r, RETRY_DELAY_MS)); continue; }
           }
-          lastError = err; break;
+          throw new Error(msg);
         }
-        throw err;
+        const data = await response.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (!text) throw new Error("Empty response from model");
+        return text;
+
+      } else if (currentProvider === 'openrouter') {
+        // ── OPENROUTER ──────────────────────────────────
+        const messages = [];
+        if (systemInstruction) messages.push({ role: "system", content: systemInstruction });
+        contents.forEach(c => messages.push({ role: c.role === 'model' ? 'assistant' : c.role, content: c.parts[0].text }));
+        response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey, "HTTP-Referer": window.location.href },
+          body: JSON.stringify({ model: "google/gemma-2-9b-it:free", messages, max_tokens: 4096, temperature: 0.7 })
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const msg = err.error?.message || "HTTP " + response.status;
+          if (response.status === 429) {
+            if (attempt < MAX_RETRIES) { updateTypingMessage("Rate limit, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")"); await new Promise(r => setTimeout(r, RETRY_DELAY_MS)); continue; }
+          }
+          throw new Error(msg);
+        }
+        const data = await response.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (!text) throw new Error("Empty response from model");
+        return text;
+
+      } else if (currentProvider === 'cohere') {
+        // ── COHERE ──────────────────────────────────────
+        const chatHistory_cohere = [];
+        contents.slice(0, -1).forEach(c => chatHistory_cohere.push({ role: c.role === 'model' ? 'CHATBOT' : 'USER', message: c.parts[0].text }));
+        const lastMsg = contents[contents.length - 1].parts[0].text;
+        const body = { model: "command-r", message: lastMsg, chat_history: chatHistory_cohere, max_tokens: 4096, temperature: 0.7 };
+        if (systemInstruction) body.preamble = systemInstruction;
+        response = await fetch("https://api.cohere.com/v1/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
+          body: JSON.stringify(body)
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          const msg = err.message || "HTTP " + response.status;
+          if (response.status === 429) {
+            if (attempt < MAX_RETRIES) { updateTypingMessage("Rate limit, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")"); await new Promise(r => setTimeout(r, RETRY_DELAY_MS)); continue; }
+          }
+          throw new Error(msg);
+        }
+        const data = await response.json();
+        const text = data.text;
+        if (!text) throw new Error("Empty response from model");
+        return text;
       }
+
+    } catch (err) {
+      if (attempt < MAX_RETRIES && (err.message.includes("rate") || err.message.includes("busy") || err.message.includes("overloaded"))) {
+        updateTypingMessage("Server busy, retrying in " + (RETRY_DELAY_MS/1000) + "s... (" + attempt + "/" + MAX_RETRIES + ")");
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS));
+        continue;
+      }
+      throw err;
     }
   }
-  throw lastError || new Error("Nessun modello disponibile");
+  throw new Error("Request failed after " + MAX_RETRIES + " attempts");
 }
 
 // ── TOAST ─────────────────────────────────────────────
