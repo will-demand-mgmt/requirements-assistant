@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in — Requirements Assistant</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green:#1A9E75; --green-dk:#085041; --green-bg:#E0F5EE;
+      --bg:#F5F4F0; --bg2:#FFFFFF; --bg3:#EEECEA;
+      --text:#18181A; --text2:#5A5A5E; --text3:#9A9A9E;
+      --border:rgba(0,0,0,0.10); --border2:rgba(0,0,0,0.20);
+      --red:#E24B4A; --red-bg:#FCEBEB;
+      --font:'DM Sans',sans-serif;
+      --r-md:8px; --r-lg:12px; --r-xl:18px;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#222222;--text:#E8E6DF;--text2:#A8A6A0;--text3:#585654;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--green-bg:#042C24;}
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{font-size:15px;}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+    .bg-deco{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+    .bg-circle{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;}
+    .bg-circle.c1{width:500px;height:500px;background:#1A9E75;top:-200px;left:-150px;}
+    .bg-circle.c2{width:400px;height:400px;background:#534AB7;bottom:-150px;right:-100px;}
+    .card{position:relative;z-index:1;background:var(--bg2);border:.5px solid var(--border2);border-radius:var(--r-xl);width:100%;max-width:400px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.08);}
+    .card-header{background:linear-gradient(135deg,#085041,#0F6E56);padding:28px 32px;}
+    .card-logo{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+    .card-logo-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.5);}
+    .card-logo-name{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+    .card-header h1{font-size:20px;font-weight:700;color:#fff;margin-bottom:5px;}
+    .card-header p{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;}
+    .card-body{padding:28px 32px;}
+    .form-group{margin-bottom:16px;}
+    label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;}
+    .input-wrap{position:relative;}
+    input[type=password],input[type=text]{width:100%;padding:10px 40px 10px 13px;border:.5px solid var(--border2);border-radius:var(--r-md);font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s,box-shadow .15s;}
+    input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,158,117,0.12);}
+    input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(226,75,74,0.12);}
+    @media(prefers-color-scheme:dark){input[type=password],input[type=text]{background:var(--bg3);}}
+    .toggle-pw{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:2px;transition:color .13s;}
+    .toggle-pw:hover{color:var(--text2);}
+    .error-msg{display:none;align-items:center;gap:6px;font-size:12px;color:var(--red);margin-top:6px;}
+    .error-msg.visible{display:flex;}
+    .btn-login{width:100%;padding:13px;border-radius:30px;background:var(--green);color:#fff;font-family:var(--font);font-size:14px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .15s;margin-top:8px;}
+    .btn-login:hover{opacity:.9;transform:translateY(-1px);}
+    .btn-login:active{transform:none;}
+    .btn-login:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .card-footer{padding:14px 32px;border-top:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+    .card-footer a{font-size:12px;color:var(--text3);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:color .13s;}
+    .card-footer a:hover{color:var(--green);}
+    .card-footer-brand{font-size:11px;color:var(--text3);}
+    /* shake animation */
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    .shake{animation:shake .4s ease;}
+  </style>
+</head>
+<body>
+<div class="bg-deco">
+  <div class="bg-circle c1"></div>
+  <div class="bg-circle c2"></div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-logo">
+      <div class="card-logo-dot"></div>
+      <span class="card-logo-name">Requirements Assistant</span>
+    </div>
+    <h1>Welcome back</h1>
+    <p>Enter your access password to access the Requirements Assistant.</p>
+  </div>
+  <div class="card-body">
+    <form id="login-form">
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password" required />
+          <button type="button" class="toggle-pw" id="toggle-pw" aria-label="Show password">
+            <i class="ti ti-eye" id="toggle-icon"></i>
+          </button>
+        </div>
+        <div class="error-msg" id="error-msg">
+          <i class="ti ti-alert-circle"></i>
+          <span>Incorrect password. Please try again.</span>
+        </div>
+      </div>
+      <button type="submit" class="btn-login" id="login-btn">
+        <i class="ti ti-lock-open"></i> Sign in
+      </button>
+    </form>
+  </div>
+  <div class="card-footer">
+    <a href="https://requirement-assistant.fastwilll.workers.dev"><i class="ti ti-arrow-left"></i> Back</a>
+    <span class="card-footer-brand">Requirements Assistant &middot; Alberto Pavani</span>
+  </div>
+</div>
+
+<script>
+// Password hash (SHA-256 of "DemandAI2025")
+var PWD_HASH = '053f779ed49717c12a0af9c867909a998378462e4c0c0003e6d20626b9ef36cf';
+var AUTH_KEY = 'ra_auth';
+
+// If already authenticated, redirect to destination
+var dest = new URLSearchParams(window.location.search).get('next') || '/requirements-assistant';
+if (sessionStorage.getItem(AUTH_KEY) === 'true') {
+  window.location.replace(dest);
+}
+
+// SHA-256 via SubtleCrypto
+async function sha256(message) {
+  var msgBuffer = new TextEncoder().encode(message);
+  var hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  var hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+// Toggle password visibility
+document.getElementById('toggle-pw').addEventListener('click', function() {
+  var input = document.getElementById('password');
+  var icon  = document.getElementById('toggle-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'ti ti-eye-off';
+  } else {
+    input.type = 'password';
+    icon.className = 'ti ti-eye';
+  }
+});
+
+// Form submit
+document.getElementById('login-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var btn   = document.getElementById('login-btn');
+  var input = document.getElementById('password');
+  var err   = document.getElementById('error-msg');
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Verifying...';
+
+  var hash = await sha256(input.value);
+
+  if (hash === PWD_HASH) {
+    sessionStorage.setItem(AUTH_KEY, 'true');
+    window.location.replace(dest);
+  } else {
+    input.classList.add('error');
+    err.classList.add('visible');
+    input.closest('.input-wrap').classList.add('shake');
+    setTimeout(function(){
+      input.closest('.input-wrap').classList.remove('shake');
+    }, 400);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-lock-open"></i> Sign in';
+    input.value = '';
+    input.focus();
+  }
+});
+
+// Remove error state on typing
+document.getElementById('password').addEventListener('input', function() {
+  this.classList.remove('error');
+  document.getElementById('error-msg').classList.remove('visible');
+});
+
+// Spin keyframe
+var s = document.createElement('style');
+s.textContent = '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(s);
+</script>
+</body>
+</html>
