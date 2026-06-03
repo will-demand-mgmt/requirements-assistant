@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request Access — Requirements Assistant</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --blue:#2A6FD4; --blue-dk:#1A4A9E; --blue-bg:#E6EEFA;
+      --bg:#F5F4F0; --bg2:#FFFFFF; --bg3:#EEECEA;
+      --text:#18181A; --text2:#5A5A5E; --text3:#9A9A9E;
+      --border:rgba(0,0,0,0.10); --border2:rgba(0,0,0,0.20);
+      --red:#E24B4A; --red-bg:#FCEBEB;
+      --font:'DM Sans',sans-serif; --r-md:8px; --r-lg:12px; --r-xl:18px;
+    }
+    @media(prefers-color-scheme:dark){
+      :root{--bg:#0F0F0F;--bg2:#1A1A1A;--bg3:#222222;--text:#E8E6DF;--text2:#A8A6A0;--text3:#585654;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--blue-bg:#0D1F3C;}
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{font-size:15px;}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+    .bg-deco{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+    .bg-circle{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;}
+    .bg-circle.c1{width:500px;height:500px;background:#2A6FD4;top:-200px;right:-150px;}
+    .bg-circle.c2{width:400px;height:400px;background:#534AB7;bottom:-150px;left:-100px;}
+    .card{position:relative;z-index:1;background:var(--bg2);border:.5px solid var(--border2);border-radius:var(--r-xl);width:100%;max-width:480px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.08);}
+    .card-header{background:linear-gradient(135deg,#1A4A9E,#2A6FD4);padding:28px 32px;}
+    .card-logo{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+    .card-logo-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.5);}
+    .card-logo-name{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+    .card-header h1{font-size:20px;font-weight:700;color:#fff;margin-bottom:5px;}
+    .card-header p{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.5;}
+    .card-body{padding:28px 32px;}
+    .form-group{margin-bottom:16px;}
+    label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;}
+    input,select,textarea{width:100%;padding:10px 13px;border:.5px solid var(--border2);border-radius:var(--r-md);font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s,box-shadow .15s;appearance:none;}
+    input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(42,111,212,0.12);}
+    textarea{resize:vertical;min-height:90px;line-height:1.5;}
+    select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239A9A9E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+    @media(prefers-color-scheme:dark){input,select,textarea{background:var(--bg3);}}
+    .error-banner{display:none;align-items:center;gap:6px;font-size:12px;color:var(--red);background:var(--red-bg);border:.5px solid var(--red);border-radius:var(--r-md);padding:10px 13px;margin-bottom:14px;}
+    .error-banner.visible{display:flex;}
+    .btn-submit{width:100%;padding:13px;border-radius:30px;background:var(--blue);color:#fff;font-family:var(--font);font-size:14px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .15s;margin-top:8px;}
+    .btn-submit:hover{opacity:.9;transform:translateY(-1px);}
+    .btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .success-state{display:none;text-align:center;padding:16px 0;}
+    .success-icon{width:56px;height:56px;border-radius:50%;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;color:var(--blue);}
+    .success-state h2{font-size:17px;font-weight:600;margin-bottom:6px;}
+    .success-state p{font-size:13px;color:var(--text2);line-height:1.6;}
+    .card-footer{padding:16px 32px;border-top:.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+    .card-footer a{font-size:12px;color:var(--text3);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:color .13s;}
+    .card-footer a:hover{color:var(--blue);}
+    .card-footer-brand{font-size:11px;color:var(--text3);}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<div class="bg-deco">
+  <div class="bg-circle c1"></div>
+  <div class="bg-circle c2"></div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-logo">
+      <div class="card-logo-dot"></div>
+      <span class="card-logo-name">Requirements Assistant</span>
+    </div>
+    <h1>Request access</h1>
+    <p>Fill in your details and we'll review your request. You'll receive an email once access is granted.</p>
+  </div>
+  <div class="card-body">
+    <div class="error-banner" id="error-banner"><i class="ti ti-alert-circle"></i><span id="error-msg">Something went wrong. Please try again.</span></div>
+    <form id="access-form">
+      <div class="form-group">
+        <label for="name">Full name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required />
+      </div>
+      <div class="form-group">
+        <label for="email">Work email</label>
+        <input type="email" id="email" name="email" placeholder="you@company.com" required />
+      </div>
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" name="role" required>
+          <option value="" disabled selected>Select your role</option>
+          <option>Product Manager</option>
+          <option>Customer Journey Designer</option>
+          <option>Demand Manager</option>
+          <option>Business Analyst</option>
+          <option>Developer</option>
+          <option>Project Manager</option>
+          <option>Executive</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="reason">Why do you need access?</label>
+        <textarea id="reason" name="reason" placeholder="Briefly describe your use case — e.g. creating BRDs for new product features, writing FRDs for a system integration project..." required></textarea>
+      </div>
+      <input type="text" name="_gotcha" style="display:none" />
+      <input type="hidden" name="_subject" value="New access request — Requirements Assistant" />
+      <button type="submit" class="btn-submit" id="submit-btn"><i class="ti ti-send"></i> Send access request</button>
+    </form>
+    <div class="success-state" id="success-state">
+      <div class="success-icon"><i class="ti ti-check"></i></div>
+      <h2>Request sent!</h2>
+      <p>Your request has been forwarded to the Requirements Assistant team. You'll receive an email at <strong id="submitted-email"></strong> once your access is approved.</p>
+    </div>
+  </div>
+  <div class="card-footer">
+    <a href="https://requirements-assistant.fastwilll.workers.dev/preview"><i class="ti ti-arrow-left"></i> Back to overview</a>
+    <span class="card-footer-brand">Requirements Assistant &middot; Alberto Pavani</span>
+  </div>
+</div>
+
+<script>
+var ENDPOINT = 'https://formspree.io/f/xvzyygaw';
+var form = document.getElementById('access-form');
+var successState = document.getElementById('success-state');
+var submitBtn = document.getElementById('submit-btn');
+var errorBanner = document.getElementById('error-banner');
+
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  errorBanner.classList.remove('visible');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Sending...';
+  var email = document.getElementById('email').value;
+  fetch(ENDPOINT, { method:'POST', body: new FormData(form), headers:{'Accept':'application/json'} })
+  .then(function(res) {
+    if (res.ok) {
+      form.style.display = 'none';
+      document.getElementById('submitted-email').textContent = email;
+      successState.style.display = 'block';
+    } else {
+      return res.json().then(function(d){ throw new Error(d.errors ? d.errors.map(function(e){return e.message;}).join(', ') : 'Submission failed'); });
+    }
+  })
+  .catch(function(err) {
+    document.getElementById('error-msg').textContent = err.message || 'Something went wrong.';
+    errorBanner.classList.add('visible');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="ti ti-send"></i> Send access request';
+  });
+});
+</script>
+</body>
+</html>
