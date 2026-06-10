@@ -176,15 +176,38 @@ var NAME_STOPWORDS = new Set([
 ]);
 
 function isLikelyPersonName(word1, word2) {
-  // Exclude if either word is a stopword
+  // ── HARD EXCLUSIONS (fastest checks first) ──────────
+  // Exclude stopwords
   if (NAME_STOPWORDS.has(word1) || NAME_STOPWORDS.has(word2)) return false;
-  // Exclude if either word is all-caps (likely acronym)
+  // Exclude all-caps (acronyms: BRD, FRD, API...)
   if (word1 === word1.toUpperCase() || word2 === word2.toUpperCase()) return false;
-  // Exclude very short words (less than 3 chars) — unlikely to be names
+  // Exclude very short words
   if (word1.length < 3 || word2.length < 3) return false;
-  // Exclude if word ends in common suffixes that indicate non-names
-  var nonNameSuffixes = /(?:ment|tion|sion|ness|ity|ance|ence|ing|tion|ical|ive|ous|ful|less|able|ible)$/i;
+  // Exclude words ending in non-name suffixes
+  var nonNameSuffixes = /(?:ment|tion|sion|ness|ity|ance|ence|ing|ical|ive|ous|ful|less|able|ible|ary|ery|ory|ward|wide|wise|work|base|line|side|time|ship|hood|ling|age|ure|ture|age)$/i;
   if (nonNameSuffixes.test(word1) || nonNameSuffixes.test(word2)) return false;
+  // Exclude words with digits (version numbers, codes)
+  if (/\d/.test(word1) || /\d/.test(word2)) return false;
+  // Exclude hyphenated words
+  if (word1.includes('-') || word2.includes('-')) return false;
+
+  // ── POSITIVE SIGNALS (name must match at least one) ─
+  // Common European first name endings (covers Italian, French, English, Spanish, German)
+  var firstNameEndings = /(?:o|a|e|i|u|n|l|r|s|x|ph|th|rt|rd|nd|ck|tt|ll|mm|nn|rr|ss)$/i;
+  // Common European last name patterns
+  var lastNamePatterns = /^(?:[A-Z][a-z]+(?:i|o|a|e|u|ni|no|na|li|lo|la|tti|lli|nni|ssi|eau|ier|ert|man|son|sen|ski|sky|kov|off|ova|ini|ino|ano|ato|esi|ese|esi)$|[A-Z][a-z]{2,}(?:berg|stein|mann|burg|field|ford|wood|worth|shaw|dale|ham)$)/;
+  // Both words should look like names (proper length, normal casing)
+  var properCasing1 = /^[A-Z][a-z]{2,15}$/;
+  var properCasing2 = /^[A-Z][a-z]{2,20}$/;
+
+  if (!properCasing1.test(word1) || !properCasing2.test(word2)) return false;
+
+  // At least one word should have a name-like ending OR the pair should not
+  // contain any dictionary-like word indicators
+  var looksLikeWord1 = /(?:day|way|ful|ary|ion|ous|ive|ble|ple|tle|nce|ence|ance|ture|sure|ure|ple|gle|kle|cle|idge|edge)$/i.test(word1);
+  var looksLikeWord2 = /(?:day|way|ful|ary|ion|ous|ive|ble|ple|tle|nce|ence|ance|ture|sure|ure|ple|gle|kle|cle|idge|edge)$/i.test(word2);
+  if (looksLikeWord1 || looksLikeWord2) return false;
+
   return true;
 }
 
