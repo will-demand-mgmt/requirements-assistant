@@ -29,7 +29,7 @@
     .nav-logo{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text);}
     .nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);}
     .nav-links{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-    .nav-link{font-size:12px;color:var(--text3);text-decoration:none;padding:5px 10px;border-radius:20px;transition:color .13s;}
+    .nav-link{font-size:12px;font-weight:500;color:var(--text2);text-decoration:none;padding:7px 14px;border-radius:20px;background:var(--bg3);border:.5px solid var(--border2);transition:opacity .13s;display:inline-flex;align-items:center;gap:5px;}
     .nav-link:hover{color:var(--text);}
     .nav-cta{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 16px;border-radius:20px;background:var(--blue);color:#fff;text-decoration:none;transition:opacity .15s;}
     .nav-cta:hover{opacity:.88;}
@@ -147,7 +147,8 @@
 <nav>
   <div class="nav-logo"><div class="nav-logo-dot"></div>Requirements Assistant</div>
   <div class="nav-links">
-    <a href="https://demand-intelligence.fastwilll.workers.dev/preview" class="nav-link"><i class="ti ti-arrow-left"></i> Demand Intelligence</a>
+    <a href="https://demand-intelligence.fastwilll.workers.dev/preview" class="nav-link"><i class="ti ti-layout-dashboard"></i> Demand Intelligence</a>
+    <a href="https://demand-agent-ui.fastwilll.workers.dev" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:7px 14px;border-radius:20px;background:#1C2A40;color:#4A8FE8;border:.5px solid #2A3F60;text-decoration:none;transition:opacity .15s;" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><i class="ti ti-robot"></i> Demand Agent <span style="font-size:9px;opacity:.7;">&#9675;</span></a>
     <a href="https://requirements-assistant.fastwilll.workers.dev/request-access" class="nav-link">Request access</a>
     <a href="https://requirements-assistant.fastwilll.workers.dev" class="nav-cta"><i class="ti ti-brain"></i> Open assistant</a>
   </div>
@@ -317,7 +318,7 @@
   </div>
   <div class="footer-meta">
     <strong>Requirements Assistant</strong>
-    <div style="margin-top:2px;">AI-Powered Requirements Engineering &nbsp;·&nbsp; <a href="https://demand-intelligence.fastwilll.workers.dev/preview" style="color:var(--blue);text-decoration:none;">Demand Intelligence ↗</a></div>
+    <div style="margin-top:2px;">AI-Powered Requirements Engineering &nbsp;·&nbsp; <span style="font-size:10px;font-weight:500;color:var(--text3,#9A9A9E);letter-spacing:.04em;opacity:.7;">v1.0</span> &nbsp;·&nbsp; <a href="https://demand-intelligence.fastwilll.workers.dev/preview" style="color:var(--blue);text-decoration:none;">Demand Intelligence ↗</a></div>
   </div>
 </footer>
 
