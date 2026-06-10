@@ -498,6 +498,43 @@ function buildSystemPromptWithDoc(basePrompt) {
   .wizard-back:hover { color: var(--accent); }
   .wizard-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; flex: 1; }
 
+
+    /* ── FILE UPLOAD ──────────────────────────────────── */
+    .upload-area{margin:0 0 6px;border:.5px dashed rgba(255,255,255,0.12);border-radius:10px;padding:9px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;background:transparent;}
+    .upload-area:hover,.upload-area.drag-over{border-color:var(--accent);background:rgba(0,229,160,0.05);}
+    .upload-area.has-file{border-style:solid;border-color:rgba(0,229,160,0.35);background:rgba(0,229,160,0.05);}
+    .upload-icon{font-size:15px;color:rgba(255,255,255,0.3);flex-shrink:0;transition:color .15s;}
+    .upload-area:hover .upload-icon,.upload-area.has-file .upload-icon{color:var(--accent);}
+    .upload-label{flex:1;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.4;transition:color .15s;}
+    .upload-area:hover .upload-label{color:rgba(255,255,255,0.6);}
+    .upload-area.has-file .upload-label{color:var(--accent);}
+    .upload-clear{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.25);font-size:13px;padding:2px 5px;border-radius:4px;transition:color .13s;display:none;line-height:1;}
+    .upload-area.has-file .upload-clear{display:block;}
+    .upload-clear:hover{color:#E05555;}
+
+    /* ── ANONYMISATION PANEL ───────────────────────────── */
+    .anon-panel{background:rgba(0,0,0,0.2);border:.5px solid rgba(0,229,160,0.15);border-radius:10px;padding:14px 16px;margin-bottom:6px;display:none;}
+    .anon-panel.visible{display:block;animation:anonFadeIn .2s ease;}
+    @keyframes anonFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+    .anon-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:.5px solid rgba(255,255,255,0.07);}
+    .anon-title{font-size:11px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:6px;}
+    .anon-toggle{font-size:11px;color:rgba(255,255,255,0.45);}
+    .anon-toggle label{cursor:pointer;display:flex;align-items:center;gap:5px;user-select:none;}
+    .anon-toggle input[type=checkbox]{accent-color:var(--accent);}
+    .privacy-toggle{display:flex;gap:6px;margin-bottom:10px;}
+    .privacy-btn{flex:1;padding:6px 10px;border-radius:7px;border:.5px solid rgba(255,255,255,0.1);background:transparent;cursor:pointer;font-size:10.5px;font-weight:500;color:rgba(255,255,255,0.4);font-family:inherit;transition:all .15s;text-align:center;}
+    .privacy-btn:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);}
+    .privacy-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,160,0.08);}
+    .anon-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+    .anon-stat{font-size:10px;padding:3px 9px;border-radius:10px;background:rgba(0,229,160,0.08);color:rgba(0,229,160,0.8);border:.5px solid rgba(0,229,160,0.2);}
+    .anon-preview-label{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:5px;}
+    .anon-preview{font-size:10.5px;font-family:monospace;color:rgba(255,255,255,0.45);background:rgba(0,0,0,0.25);border-radius:6px;padding:9px 12px;max-height:80px;overflow-y:auto;line-height:1.65;border:.5px solid rgba(255,255,255,0.07);}
+    .anon-preview mark{background:rgba(0,229,160,0.18);color:rgba(0,229,160,0.9);border-radius:3px;padding:1px 3px;font-style:normal;}
+    .anon-footer{display:flex;align-items:flex-start;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:.5px solid rgba(255,255,255,0.07);gap:10px;flex-wrap:wrap;}
+    .anon-disclaimer{font-size:10px;color:rgba(255,180,0,0.65);display:flex;align-items:flex-start;gap:5px;line-height:1.5;flex:1;}
+    .anon-map-btn{background:none;border:.5px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .13s;flex-shrink:0;}
+    .anon-map-btn:hover{border-color:var(--accent);color:var(--accent);}
+
 </style>
 </head>
 <body>
@@ -718,9 +755,12 @@ function buildSystemPromptWithDoc(basePrompt) {
             <button class="privacy-btn" id="privEnhanced" onclick="setPrivacyLevel('enhanced')">🔐 Enhanced — names &amp; companies</button>
           </div>
           <div class="anon-stats" id="anonStats"></div>
+          <div class="anon-preview-label">Anonymised preview</div>
           <div class="anon-preview" id="anonPreview"></div>
-          <div class="anon-disclaimer">⚠️ Anonymisation reduces but does not eliminate privacy risk. Review the preview above before sending. The LLM receives only the anonymised text.</div>
-          <button onclick="downloadAnonMap()" style="margin-top:6px;background:none;border:.5px solid var(--border);border-radius:6px;padding:4px 10px;font-size:10px;color:var(--text-dim);cursor:pointer;font-family:var(--font);transition:color .13s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color=''">⬇ Download anonymisation map (JSON)</button>
+          <div class="anon-footer">
+            <div class="anon-disclaimer"><span>⚠️</span><span>Anonymisation reduces but does not eliminate privacy risk. Review the preview before sending — the LLM receives only the anonymised text.</span></div>
+            <button class="anon-map-btn" onclick="downloadAnonMap()">⬇ Anonymisation map</button>
+          </div>
         </div>
 
         <div class="chat-input-wrap">
