@@ -12,6 +12,248 @@
     window.location.replace('/login?next=' + next);
   }
 })();
+
+// ══════════════════════════════════════════════════════
+// FILE UPLOAD & ANONYMISATION ENGINE
+// All processing happens in the browser — nothing is
+// uploaded to any server. Text exists only in RAM.
+// ══════════════════════════════════════════════════════
+
+var documentContext = null;       // raw extracted text
+var anonymisedContext = null;     // anonymised text sent to LLM
+var anonMap = {};                 // placeholder → original value
+var privacyLevel = 'standard';    // 'standard' | 'enhanced'
+var anonActive = true;
+
+// ── PDF LIBRARY (loaded on demand) ───────────────────
+var pdfjsLoaded = false;
+function loadPdfJs(cb) {
+  if (pdfjsLoaded) { cb(); return; }
+  var s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  s.onload = function() {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLoaded = true;
+    cb();
+  };
+  document.head.appendChild(s);
+}
+
+// ── DOCX LIBRARY (loaded on demand) ──────────────────
+var mammothLoaded = false;
+function loadMammoth(cb) {
+  if (mammothLoaded) { cb(); return; }
+  var s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js';
+  s.onload = function() { mammothLoaded = true; cb(); };
+  document.head.appendChild(s);
+}
+
+// ── FILE SELECTION ────────────────────────────────────
+function handleFileSelect(event) {
+  var file = event.target.files[0];
+  if (file) processFile(file);
+}
+
+function handleFileDrop(event) {
+  event.preventDefault();
+  document.getElementById('uploadArea').classList.remove('drag-over');
+  var file = event.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+
+function processFile(file) {
+  var allowed = ['application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/msword', 'text/plain'];
+  if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|docx|doc|txt)$/i)) {
+    alert('Unsupported format. Please upload a PDF, DOCX, or TXT file.');
+    return;
+  }
+
+  var label = document.getElementById('uploadLabel');
+  label.textContent = 'Reading ' + file.name + '...';
+  document.getElementById('uploadArea').classList.add('has-file');
+
+  if (file.type === 'application/pdf' || file.name.match(/\.pdf$/i)) {
+    loadPdfJs(function() { extractPdf(file); });
+  } else if (file.type.includes('wordprocessingml') || file.name.match(/\.docx?$/i)) {
+    loadMammoth(function() { extractDocx(file); });
+  } else {
+    extractTxt(file);
+  }
+}
+
+// ── TEXT EXTRACTION ───────────────────────────────────
+function extractPdf(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var typedArray = new Uint8Array(e.target.result);
+    pdfjsLib.getDocument({ data: typedArray }).promise.then(function(pdf) {
+      var pages = [];
+      var total = pdf.numPages;
+      var done = 0;
+      for (var i = 1; i <= total; i++) {
+        (function(pageNum) {
+          pdf.getPage(pageNum).then(function(page) {
+            page.getTextContent().then(function(tc) {
+              pages[pageNum - 1] = tc.items.map(function(s) { return s.str; }).join(' ');
+              done++;
+              if (done === total) onTextExtracted(pages.join('\n\n'), file.name);
+            });
+          });
+        })(i);
+      }
+    }).catch(function(err) {
+      onExtractError(err.message);
+    });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function extractDocx(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    mammoth.extractRawText({ arrayBuffer: e.target.result })
+      .then(function(result) { onTextExtracted(result.value, file.name); })
+      .catch(function(err) { onExtractError(err.message); });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function extractTxt(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) { onTextExtracted(e.target.result, file.name); };
+  reader.readAsText(file);
+}
+
+function onExtractError(msg) {
+  document.getElementById('uploadLabel').textContent = '⚠️ Could not read file: ' + msg;
+  document.getElementById('uploadArea').classList.remove('has-file');
+  documentContext = null;
+}
+
+// ── ANONYMISATION ENGINE ──────────────────────────────
+function onTextExtracted(text, filename) {
+  documentContext = text;
+  document.getElementById('uploadLabel').textContent = '📄 ' + filename + ' — ' + Math.round(text.length / 1000) + 'k chars extracted';
+  runAnonymisation();
+  document.getElementById('anonPanel').classList.add('visible');
+}
+
+// Standard patterns
+var PATTERNS = [
+  { label: 'Emails',    re: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,   prefix: 'EMAIL' },
+  { label: 'Phones',    re: /(?:\+?[0-9][\s\-.]?){7,14}/g,                            prefix: 'PHONE' },
+  { label: 'Demand IDs',re: /\b[A-Z]{2,4}-\d{2,6}\b/g,                               prefix: 'ID' },
+  { label: 'URLs',      re: /https?:\/\/[^\s"'<>]+/g,                                prefix: 'URL' },
+  { label: 'IPs',       re: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,                        prefix: 'IP' },
+  { label: 'Dates',     re: /\b(?:\d{1,2}[\/\-\.])\d{1,2}[\/\-\.]\d{2,4}\b/g, prefix: 'DATE' }
+];
+
+// Enhanced: common name patterns + company indicators
+var NAME_RE = /\b([A-Z][a-z]{1,20}\s[A-Z][a-z]{1,20})\b/g;
+var COMPANY_SUFFIXES = /\b([A-Z][A-Za-z\s&]{2,30}(?:Ltd|GmbH|SA|SAS|SpA|Corp|Inc|SRL|NV|AG|BV|PLC|LLC))\b/g;
+
+function runAnonymisation() {
+  if (!documentContext) return;
+  anonMap = {};
+  var counters = {};
+  var text = documentContext;
+
+  function replace(re, prefix) {
+    counters[prefix] = counters[prefix] || 0;
+    return text.replace(re, function(match) {
+      // Check if already mapped
+      for (var k in anonMap) { if (anonMap[k] === match) return k; }
+      counters[prefix]++;
+      var placeholder = '[' + prefix + '_' + counters[prefix] + ']';
+      anonMap[placeholder] = match;
+      return placeholder;
+    });
+  }
+
+  // Apply standard patterns
+  PATTERNS.forEach(function(p) { text = replace(p.re, p.prefix); });
+
+  // Apply enhanced patterns if selected
+  if (privacyLevel === 'enhanced') {
+    text = replace(NAME_RE, 'PERSON');
+    text = replace(COMPANY_SUFFIXES, 'COMPANY');
+  }
+
+  anonymisedContext = anonActive ? text : documentContext;
+
+  // Update stats
+  var stats = document.getElementById('anonStats');
+  var count = Object.keys(anonMap).length;
+  stats.innerHTML = count > 0
+    ? '<span class="anon-stat">🔒 ' + count + ' items anonymised</span>' +
+      Object.keys(counters).map(function(k) {
+        return '<span class="anon-stat">' + k + ': ' + counters[k] + '</span>';
+      }).join('')
+    : '<span class="anon-stat" style="background:rgba(255,200,0,0.1);color:#B0A000;">No sensitive patterns detected</span>';
+
+  // Update preview (first 400 chars)
+  var preview = (anonActive ? text : documentContext).substring(0, 400);
+  // Highlight placeholders
+  preview = preview.replace(/\[[A-Z_0-9]+\]/g, function(m) {
+    return '<mark>' + m + '</mark>';
+  });
+  document.getElementById('anonPreview').innerHTML = preview + (text.length > 400 ? '…' : '');
+}
+
+function toggleAnon() {
+  anonActive = document.getElementById('anonEnabled').checked;
+  runAnonymisation();
+}
+
+function setPrivacyLevel(level) {
+  privacyLevel = level;
+  document.getElementById('privStandard').classList.toggle('active', level === 'standard');
+  document.getElementById('privEnhanced').classList.toggle('active', level === 'enhanced');
+  runAnonymisation();
+}
+
+function clearDocument(event) {
+  event.stopPropagation();
+  documentContext = null;
+  anonymisedContext = null;
+  anonMap = {};
+  document.getElementById('uploadArea').classList.remove('has-file');
+  document.getElementById('uploadLabel').textContent = 'Attach demand document (PDF or DOCX) — optional · Processed locally, never uploaded';
+  document.getElementById('anonPanel').classList.remove('visible');
+  document.getElementById('docFileInput').value = '';
+}
+
+// ── ANON MAP DOWNLOAD ─────────────────────────────────
+function downloadAnonMap() {
+  if (Object.keys(anonMap).length === 0) return;
+  var blob = new Blob([JSON.stringify(anonMap, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'anonymisation-map.json';
+  a.click();
+}
+
+
+// Build system prompt enriched with document context
+function buildSystemPromptWithDoc(basePrompt) {
+  if (!documentContext) return basePrompt;
+  var ctx = anonActive && anonymisedContext ? anonymisedContext : documentContext;
+  // Truncate to ~6000 chars to avoid token overflow
+  if (ctx.length > 6000) ctx = ctx.substring(0, 6000) + '\n\n[Document truncated for length — key content above]';
+  return basePrompt +
+    '\n\n═══════════════════════════════════\n' +
+    'DEMAND DOCUMENT PROVIDED BY USER\n' +
+    '═══════════════════════════════════\n' +
+    'The user has uploaded a demand document. Use it as the primary source of information ' +
+    'for elicitation. Extract business context, objectives, stakeholders, and requirements ' +
+    'directly from this document. Skip questions about information already present.\n\n' +
+    ctx +
+    '\n═══════════════════════════════════';
+}
+
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -451,6 +693,36 @@
         </div>
       </div>
       <div class="chat-input-area">
+
+        <!-- FILE UPLOAD -->
+        <input type="file" id="docFileInput" accept=".pdf,.docx,.doc,.txt" style="display:none" onchange="handleFileSelect(event)">
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('docFileInput').click()"
+             ondragover="event.preventDefault();this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             ondrop="handleFileDrop(event)">
+          <span class="upload-icon">📎</span>
+          <span class="upload-label" id="uploadLabel">Attach demand document (PDF or DOCX) — optional &nbsp;·&nbsp; Processed locally, never uploaded</span>
+          <button class="upload-clear" id="uploadClear" onclick="clearDocument(event)" title="Remove document">✕</button>
+        </div>
+
+        <!-- ANONYMISATION PANEL -->
+        <div class="anon-panel" id="anonPanel">
+          <div class="anon-header">
+            <div class="anon-title">🔒 Privacy &amp; Anonymisation</div>
+            <div class="anon-toggle">
+              <label><input type="checkbox" id="anonEnabled" checked onchange="toggleAnon()"> Auto-anonymise</label>
+            </div>
+          </div>
+          <div class="privacy-toggle">
+            <button class="privacy-btn active" id="privStandard" onclick="setPrivacyLevel('standard')">🔒 Standard — patterns only</button>
+            <button class="privacy-btn" id="privEnhanced" onclick="setPrivacyLevel('enhanced')">🔐 Enhanced — names &amp; companies</button>
+          </div>
+          <div class="anon-stats" id="anonStats"></div>
+          <div class="anon-preview" id="anonPreview"></div>
+          <div class="anon-disclaimer">⚠️ Anonymisation reduces but does not eliminate privacy risk. Review the preview above before sending. The LLM receives only the anonymised text.</div>
+          <button onclick="downloadAnonMap()" style="margin-top:6px;background:none;border:.5px solid var(--border);border-radius:6px;padding:4px 10px;font-size:10px;color:var(--text-dim);cursor:pointer;font-family:var(--font);transition:color .13s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color=''">⬇ Download anonymisation map (JSON)</button>
+        </div>
+
         <div class="chat-input-wrap">
           <textarea class="chat-input" id="chatInput" placeholder="Describe your project or requirement..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
           <button class="btn-send" id="sendBtn" onclick="sendMessage()">→</button>
@@ -858,7 +1130,7 @@ async function sendMessage() {
   setLoading(true);
   addTypingIndicator();
   try {
-    const response = await callGemini(SYSTEM_PROMPTS[currentDocType], chatHistory);
+    const response = await callGemini(buildSystemPromptWithDoc(SYSTEM_PROMPTS[currentDocType]), chatHistory);
     removeTypingIndicator();
     addMessage('assistant', response);
     chatHistory.push({ role: 'model', parts: [{ text: response }] });
