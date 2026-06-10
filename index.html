@@ -151,9 +151,44 @@ var PATTERNS = [
   { label: 'Dates',     re: /\b(?:\d{1,2}[\/\-\.])\d{1,2}[\/\-\.]\d{2,4}\b/g, prefix: 'DATE' }
 ];
 
-// Enhanced: common name patterns + company indicators
-var NAME_RE = /\b([A-Z][a-z]{1,20}\s[A-Z][a-z]{1,20})\b/g;
-var COMPANY_SUFFIXES = /\b([A-Z][A-Za-z\s&]{2,30}(?:Ltd|GmbH|SA|SAS|SpA|Corp|Inc|SRL|NV|AG|BV|PLC|LLC))\b/g;
+// Enhanced: name detection with stopword exclusion to avoid false positives
+// Only matches "Word Word" patterns where neither word is a common English/Italian term
+var NAME_STOPWORDS = new Set([
+  // English common words that appear capitalised
+  'The','A','An','This','That','These','Those','Each','Every','Any','All','Both',
+  'New','Old','High','Low','Good','Bad','Big','Small','Large','First','Last',
+  'Main','Key','Core','Full','Base','Top','End','Side','Set','Get','Use',
+  'Business','Requirements','Document','System','Service','Process','Project',
+  'Demand','Request','Category','Rank','Type','Level','Stage','Phase','Status',
+  'Internal','External','Public','Private','Global','Local','Remote','Online',
+  'Portal','Platform','Application','Interface','Dashboard','Module','Feature',
+  'Data','Report','Analysis','Review','Assessment','Design','Implementation',
+  'Management','Operations','Support','Infrastructure','Architecture','Solution',
+  'Team','Group','Department','Division','Unit','Board','Committee','Council',
+  'Access','Control','Security','Policy','Rule','Standard','Framework',
+  'User','Admin','Owner','Manager','Lead','Director','Officer',
+  'Version','Release','Update','Change','Issue','Risk','Action','Item',
+  'Meeting','Session','Call','Review','Workshop','Sprint','Epic','Story',
+  // Italian common words
+  'Nuova','Nuovo','Alta','Alto','Bassa','Basso','Prima','Primo','Ultima','Ultimo',
+  'Gestione','Sistema','Servizio','Progetto','Domanda','Richiesta','Categoria',
+  'Interna','Interno','Esterna','Esterno','Pubblica','Pubblico','Privata','Privato'
+]);
+
+function isLikelyPersonName(word1, word2) {
+  // Exclude if either word is a stopword
+  if (NAME_STOPWORDS.has(word1) || NAME_STOPWORDS.has(word2)) return false;
+  // Exclude if either word is all-caps (likely acronym)
+  if (word1 === word1.toUpperCase() || word2 === word2.toUpperCase()) return false;
+  // Exclude very short words (less than 3 chars) — unlikely to be names
+  if (word1.length < 3 || word2.length < 3) return false;
+  // Exclude if word ends in common suffixes that indicate non-names
+  var nonNameSuffixes = /(?:ment|tion|sion|ness|ity|ance|ence|ing|tion|ical|ive|ous|ful|less|able|ible)$/i;
+  if (nonNameSuffixes.test(word1) || nonNameSuffixes.test(word2)) return false;
+  return true;
+}
+
+var COMPANY_SUFFIXES = /([A-Z][A-Za-z\s&]{2,30}(?:Ltd|GmbH|SA|SAS|SpA|Corp|Inc|SRL|NV|AG|BV|PLC|LLC))/g;
 
 function runAnonymisation() {
   if (!documentContext) return;
@@ -178,7 +213,16 @@ function runAnonymisation() {
 
   // Apply enhanced patterns if selected
   if (privacyLevel === 'enhanced') {
-    text = replace(NAME_RE, 'PERSON');
+    // Name detection with false-positive filtering
+    counters['PERSON'] = counters['PERSON'] || 0;
+    text = text.replace(/([A-Z][a-z]{2,20})\s([A-Z][a-z]{2,20})/g, function(match, w1, w2) {
+      if (!isLikelyPersonName(w1, w2)) return match; // skip — not a person name
+      for (var k in anonMap) { if (anonMap[k] === match) return k; }
+      counters['PERSON']++;
+      var placeholder = '[PERSON_' + counters['PERSON'] + ']';
+      anonMap[placeholder] = match;
+      return placeholder;
+    });
     text = replace(COMPANY_SUFFIXES, 'COMPANY');
   }
 
