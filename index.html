@@ -136,19 +136,24 @@ function onExtractError(msg) {
 // ── ANONYMISATION ENGINE ──────────────────────────────
 function onTextExtracted(text, filename) {
   documentContext = text;
+  anonymisedContext = text;
   document.getElementById('uploadLabel').textContent = '📄 ' + filename + ' — ' + Math.round(text.length / 1000) + 'k chars extracted';
-  runAnonymisation();
-  document.getElementById('anonPanel').classList.add('visible');
+  document.getElementById('uploadArea').classList.add('has-file');
+  // Show banner and privacy warning
+  var banner = document.getElementById('docContextBanner');
+  var warning = document.getElementById('privacyWarning');
+  if (banner) {
+    document.getElementById('docContextLabel').textContent = filename + ' loaded as context (' + Math.round(text.length/1000) + 'k chars)';
+    banner.style.display = 'flex';
+  }
+  if (warning) warning.style.display = 'block';
 }
 
 // Standard patterns
 var PATTERNS = [
   { label: 'Emails',    re: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,   prefix: 'EMAIL' },
-  { label: 'Phones',    re: /(?:\+?[0-9][\s\-.]?){7,14}/g,                            prefix: 'PHONE' },
-  { label: 'Demand IDs',re: /\b[A-Z]{2,4}-\d{2,6}\b/g,                               prefix: 'ID' },
-  { label: 'URLs',      re: /https?:\/\/[^\s"'<>]+/g,                                prefix: 'URL' },
-  { label: 'IPs',       re: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,                        prefix: 'IP' },
-  { label: 'Dates',     re: /\b(?:\d{1,2}[\/\-\.])\d{1,2}[\/\-\.]\d{2,4}\b/g, prefix: 'DATE' }
+  { label: 'URLs',      re: /https?:\/\/[^\s"'<>]+/g,                                 prefix: 'URL' },
+  { label: 'IPs',       re: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,                          prefix: 'IP' }
 ];
 
 // Enhanced: name detection with stopword exclusion to avoid false positives
@@ -211,7 +216,7 @@ function isLikelyPersonName(word1, word2) {
   return true;
 }
 
-var COMPANY_SUFFIXES = /([A-Z][A-Za-z\s&]{2,30}(?:Ltd|GmbH|SA|SAS|SpA|Corp|Inc|SRL|NV|AG|BV|PLC|LLC))/g;
+var COMPANY_SUFFIXES = /(?:^|\s|[^A-Za-z])([A-Z][A-Za-z &]{2,30}(?:Ltd|GmbH|SA|SAS|SpA|Corp|Inc|SRL|NV|AG|BV|PLC|LLC))(?=$|\s|[^A-Za-z])/g;
 
 function runAnonymisation() {
   if (!documentContext) return;
@@ -238,7 +243,7 @@ function runAnonymisation() {
   if (privacyLevel === 'enhanced') {
     // Name detection with false-positive filtering
     counters['PERSON'] = counters['PERSON'] || 0;
-    text = text.replace(/([A-Z][a-z]{2,20})\s([A-Z][a-z]{2,20})/g, function(match, w1, w2) {
+    text = text.replace(/(?<![A-Za-z])([A-Z][a-z]{2,20}) ([A-Z][a-z]{2,20})(?![a-z])/g, function(match, w1, w2) {
       if (!isLikelyPersonName(w1, w2)) return match; // skip — not a person name
       for (var k in anonMap) { if (anonMap[k] === match) return k; }
       counters['PERSON']++;
@@ -283,14 +288,15 @@ function setPrivacyLevel(level) {
 }
 
 function clearDocument(event) {
-  event.stopPropagation();
+  if (event) event.stopPropagation();
   documentContext = null;
   anonymisedContext = null;
   anonMap = {};
   document.getElementById('uploadArea').classList.remove('has-file');
   document.getElementById('uploadLabel').textContent = 'Attach demand document (PDF or DOCX) — optional · Processed locally, never uploaded';
-  document.getElementById('anonPanel').classList.remove('visible');
   document.getElementById('docFileInput').value = '';
+  document.getElementById('docContextBanner').style.display = 'none';
+  document.getElementById('privacyWarning').style.display = 'none';
 }
 
 // ── ANON MAP DOWNLOAD ─────────────────────────────────
@@ -566,41 +572,6 @@ function buildSystemPromptWithDoc(basePrompt) {
   .wizard-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; flex: 1; }
 
 
-    /* ── FILE UPLOAD ──────────────────────────────────── */
-    .upload-area{margin:0 0 6px;border:.5px dashed rgba(255,255,255,0.12);border-radius:10px;padding:9px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;background:transparent;}
-    .upload-area:hover,.upload-area.drag-over{border-color:var(--accent);background:rgba(0,229,160,0.05);}
-    .upload-area.has-file{border-style:solid;border-color:rgba(0,229,160,0.35);background:rgba(0,229,160,0.05);}
-    .upload-icon{font-size:15px;color:rgba(255,255,255,0.3);flex-shrink:0;transition:color .15s;}
-    .upload-area:hover .upload-icon,.upload-area.has-file .upload-icon{color:var(--accent);}
-    .upload-label{flex:1;font-size:11px;color:rgba(255,255,255,0.35);line-height:1.4;transition:color .15s;}
-    .upload-area:hover .upload-label{color:rgba(255,255,255,0.6);}
-    .upload-area.has-file .upload-label{color:var(--accent);}
-    .upload-clear{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.25);font-size:13px;padding:2px 5px;border-radius:4px;transition:color .13s;display:none;line-height:1;}
-    .upload-area.has-file .upload-clear{display:block;}
-    .upload-clear:hover{color:#E05555;}
-
-    /* ── ANONYMISATION PANEL ───────────────────────────── */
-    .anon-panel{background:rgba(0,0,0,0.2);border:.5px solid rgba(0,229,160,0.15);border-radius:10px;padding:14px 16px;margin-bottom:6px;display:none;}
-    .anon-panel.visible{display:block;animation:anonFadeIn .2s ease;}
-    @keyframes anonFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-    .anon-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:.5px solid rgba(255,255,255,0.07);}
-    .anon-title{font-size:11px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:6px;}
-    .anon-toggle{font-size:11px;color:rgba(255,255,255,0.45);}
-    .anon-toggle label{cursor:pointer;display:flex;align-items:center;gap:5px;user-select:none;}
-    .anon-toggle input[type=checkbox]{accent-color:var(--accent);}
-    .privacy-toggle{display:flex;gap:6px;margin-bottom:10px;}
-    .privacy-btn{flex:1;padding:6px 10px;border-radius:7px;border:.5px solid rgba(255,255,255,0.1);background:transparent;cursor:pointer;font-size:10.5px;font-weight:500;color:rgba(255,255,255,0.4);font-family:inherit;transition:all .15s;text-align:center;}
-    .privacy-btn:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);}
-    .privacy-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,160,0.08);}
-    .anon-stats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
-    .anon-stat{font-size:10px;padding:3px 9px;border-radius:10px;background:rgba(0,229,160,0.08);color:rgba(0,229,160,0.8);border:.5px solid rgba(0,229,160,0.2);}
-    .anon-preview-label{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:5px;}
-    .anon-preview{font-size:10.5px;font-family:monospace;color:rgba(255,255,255,0.45);background:rgba(0,0,0,0.25);border-radius:6px;padding:9px 12px;max-height:80px;overflow-y:auto;line-height:1.65;border:.5px solid rgba(255,255,255,0.07);}
-    .anon-preview mark{background:rgba(0,229,160,0.18);color:rgba(0,229,160,0.9);border-radius:3px;padding:1px 3px;font-style:normal;}
-    .anon-footer{display:flex;align-items:flex-start;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:.5px solid rgba(255,255,255,0.07);gap:10px;flex-wrap:wrap;}
-    .anon-disclaimer{font-size:10px;color:rgba(255,180,0,0.65);display:flex;align-items:flex-start;gap:5px;line-height:1.5;flex:1;}
-    .anon-map-btn{background:none;border:.5px solid rgba(255,255,255,0.1);border-radius:6px;padding:4px 10px;font-size:10px;color:rgba(255,255,255,0.35);cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .13s;flex-shrink:0;}
-    .anon-map-btn:hover{border-color:var(--accent);color:var(--accent);}
 
 </style>
 </head>
@@ -800,34 +771,29 @@ function buildSystemPromptWithDoc(basePrompt) {
 
         <!-- FILE UPLOAD -->
         <input type="file" id="docFileInput" accept=".pdf,.docx,.doc,.txt" style="display:none" onchange="handleFileSelect(event)">
-        <div class="upload-area" id="uploadArea" onclick="document.getElementById('docFileInput').click()"
-             ondragover="event.preventDefault();this.classList.add('drag-over')"
-             ondragleave="this.classList.remove('drag-over')"
-             ondrop="handleFileDrop(event)">
-          <span class="upload-icon">📎</span>
-          <span class="upload-label" id="uploadLabel">Attach demand document (PDF or DOCX) — optional &nbsp;·&nbsp; Processed locally, never uploaded</span>
-          <button class="upload-clear" id="uploadClear" onclick="clearDocument(event)" title="Remove document">✕</button>
+        <div style="display:flex;gap:6px;margin-bottom:8px;">
+          <div class="upload-area" id="uploadArea" onclick="document.getElementById('docFileInput').click()" style="flex:1;margin-bottom:0;"
+               ondragover="event.preventDefault();this.classList.add('drag-over')"
+               ondragleave="this.classList.remove('drag-over')"
+               ondrop="handleFileDrop(event)">
+            <span class="upload-icon">📎</span>
+            <span class="upload-label" id="uploadLabel">Attach demand document (PDF or DOCX) — optional &nbsp;·&nbsp; Processed locally, never uploaded</span>
+            <button class="upload-clear" id="uploadClear" onclick="clearDocument(event)" title="Remove document">✕</button>
+          </div>
+          <a href="https://document-anonymiser.fastwilll.workers.dev" target="_blank"
+             style="display:inline-flex;align-items:center;gap:5px;padding:0 12px;border-radius:10px;background:rgba(124,111,212,0.1);border:.5px solid rgba(124,111,212,0.3);color:#9D93E8;font-size:10.5px;font-weight:500;text-decoration:none;white-space:nowrap;transition:all .15s;flex-shrink:0;"
+             onmouseover="this.style.background='rgba(124,111,212,0.2)'" onmouseout="this.style.background='rgba(124,111,212,0.1)'"
+             title="Anonymise your document before uploading">
+            🔒 Anonymise first ↗
+          </a>
         </div>
-
-        <!-- ANONYMISATION PANEL -->
-        <div class="anon-panel" id="anonPanel">
-          <div class="anon-header">
-            <div class="anon-title">🔒 Privacy &amp; Anonymisation</div>
-            <div class="anon-toggle">
-              <label><input type="checkbox" id="anonEnabled" checked onchange="toggleAnon()"> Auto-anonymise</label>
-            </div>
-          </div>
-          <div class="privacy-toggle">
-            <button class="privacy-btn active" id="privStandard" onclick="setPrivacyLevel('standard')">🔒 Standard — patterns only</button>
-            <button class="privacy-btn" id="privEnhanced" onclick="setPrivacyLevel('enhanced')">🔐 Enhanced — names &amp; companies</button>
-          </div>
-          <div class="anon-stats" id="anonStats"></div>
-          <div class="anon-preview-label">Anonymised preview</div>
-          <div class="anon-preview" id="anonPreview"></div>
-          <div class="anon-footer">
-            <div class="anon-disclaimer"><span>⚠️</span><span>Anonymisation reduces but does not eliminate privacy risk. Review the preview before sending — the LLM receives only the anonymised text.</span></div>
-            <button class="anon-map-btn" onclick="downloadAnonMap()">⬇ Anonymisation map</button>
-          </div>
+        <div id="docContextBanner" style="display:none;align-items:center;gap:8px;padding:7px 12px;background:rgba(0,200,150,0.07);border:.5px solid rgba(0,200,150,0.2);border-radius:8px;font-size:11px;color:rgba(0,200,150,0.8);margin-bottom:8px;">
+          <span>🔒</span>
+          <span id="docContextLabel">Document loaded as context</span>
+          <button onclick="clearDocument(event)" style="margin-left:auto;background:none;border:none;cursor:pointer;color:rgba(0,200,150,0.5);font-size:12px;padding:0 2px;" title="Remove">✕</button>
+        </div>
+        <div style="display:none;padding:7px 12px;background:rgba(255,180,0,0.06);border:.5px solid rgba(255,180,0,0.2);border-radius:8px;font-size:10.5px;color:rgba(255,180,0,0.65);margin-bottom:8px;line-height:1.5;" id="privacyWarning">
+          ⚠️ The document text will be sent to the AI provider you selected. For sensitive documents, use <a href="https://document-anonymiser.fastwilll.workers.dev" target="_blank" style="color:#9D93E8;text-decoration:none;">Document Anonymiser ↗</a> before uploading.
         </div>
 
         <div class="chat-input-wrap">
@@ -1202,6 +1168,31 @@ function setDocType(btn, type) {
   document.querySelectorAll('.doc-type-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   updateModeIndicator();
+
+// Check if anonymised text was passed from Document Anonymiser
+(function() {
+  try {
+    if (sessionStorage.getItem('anon_doc_ready') === 'true') {
+      var anonText = sessionStorage.getItem('anon_doc_text');
+      if (anonText) {
+        documentContext = anonText;
+        anonymisedContext = anonText;
+        anonActive = false; // already anonymised
+        var label = document.getElementById('uploadLabel');
+        if (label) label.textContent = '🔒 Anonymised document loaded — ' + Math.round(anonText.length/1000) + 'k chars';
+        var area = document.getElementById('uploadArea');
+        if (area) area.classList.add('has-file');
+        var banner = document.getElementById('docContextBanner');
+        if (banner) {
+          document.getElementById('docContextLabel').textContent = 'Pre-anonymised document loaded (' + Math.round(anonText.length/1000) + 'k chars)';
+          banner.style.display = 'flex';
+        }
+        sessionStorage.removeItem('anon_doc_ready');
+        sessionStorage.removeItem('anon_doc_text');
+      }
+    }
+  } catch(e) {}
+})();
 }
 
 function updateModeIndicator() {
@@ -1631,7 +1622,7 @@ function navigateTo(e, url) {
     <a href="mailto:albpavani@gmail.com" style="font-size:11px;color:#00e5a0;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-left:8px;">✉ albpavani@gmail.com</a>
   </div>
   <div style="font-size:11px;color:#6b7a8d;text-align:right;">
-    <div style="color:#a0aec0;font-weight:500;">Requirements Intelligence Assistant &nbsp;·&nbsp; <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,0.3);letter-spacing:.04em;">v1.3.0</span></div>
+    <div style="color:#a0aec0;font-weight:500;">Requirements Intelligence Assistant &nbsp;·&nbsp; <span style="font-size:10px;font-weight:500;color:rgba(255,255,255,0.3);letter-spacing:.04em;">v1.4.0</span></div>
     <div style="margin-top:2px;">Powered by multi-provider AI &nbsp;·&nbsp;
       <a href="/login" onclick="sessionStorage.removeItem('ra_auth')" style="color:#6b7a8d;text-decoration:none;transition:color .13s;" onmouseover="this.style.color='#00e5a0'" onmouseout="this.style.color='#6b7a8d'">Sign out</a>
     </div>
