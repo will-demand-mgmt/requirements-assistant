@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Request Access — Requirements Assistant</title>
+  <title>Request a demo — Alberto Pavani</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -66,21 +66,33 @@
   <div class="card-header">
     <div class="card-logo">
       <div class="card-logo-dot"></div>
-      <span class="card-logo-name">Requirements Assistant</span>
+      <span class="card-logo-name">Alberto Pavani · AI prototypes</span>
     </div>
-    <h1>Request access</h1>
-    <p>Fill in your details and we'll review your request. You'll receive an email once access is granted.</p>
+    <h1>Request a demo</h1>
+    <p>Tell me which project you'd like to see. I'll reply by email to arrange a demo.</p>
   </div>
   <div class="card-body">
     <div class="error-banner" id="error-banner"><i class="ti ti-alert-circle"></i><span id="error-msg">Something went wrong. Please try again.</span></div>
     <form id="access-form">
       <div class="form-group">
+        <label for="project">Project</label>
+        <select id="project" name="project" required>
+          <option value="" disabled selected>Select a project</option>
+          <option value="Demand Agent" data-key="demand-agent">Demand Agent</option>
+          <option value="Requirements Assistant" data-key="requirements-assistant">Requirements Assistant</option>
+          <option value="Document Anonymiser" data-key="document-anonymiser">Document Anonymiser</option>
+          <option value="Demand Assistant" data-key="demand-assistant">Demand Assistant</option>
+          <option value="Event Management System" data-key="event-management">Event Management System</option>
+          <option value="More than one" data-key="several">More than one</option>
+        </select>
+      </div>
+      <div class="form-group">
         <label for="name">Full name</label>
         <input type="text" id="name" name="name" placeholder="Your name" required />
       </div>
       <div class="form-group">
-        <label for="email">Work email</label>
-        <input type="email" id="email" name="email" placeholder="you@company.com" required />
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required />
       </div>
       <div class="form-group">
         <label for="role">Role</label>
@@ -97,31 +109,47 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="reason">Why do you need access?</label>
-        <textarea id="reason" name="reason" placeholder="Briefly describe your use case — e.g. creating BRDs for new product features, writing FRDs for a system integration project..." required></textarea>
+        <label for="reason">What would you like to see?</label>
+        <textarea id="reason" name="reason" placeholder="A line or two on what you're interested in, and any question you'd like the demo to answer." required></textarea>
       </div>
       <input type="text" name="_gotcha" style="display:none" />
-      <input type="hidden" name="_subject" value="New access request — Requirements Assistant" />
-      <button type="submit" class="btn-submit" id="submit-btn"><i class="ti ti-send"></i> Send access request</button>
+      <input type="hidden" name="_subject" id="subject" value="New demo request" />
+      <button type="submit" class="btn-submit" id="submit-btn"><i class="ti ti-send"></i> Send request</button>
     </form>
     <div class="success-state" id="success-state">
       <div class="success-icon"><i class="ti ti-check"></i></div>
-      <h2>Request sent!</h2>
-      <p>Your request has been forwarded to the Requirements Assistant team. You'll receive an email at <strong id="submitted-email"></strong> once your access is approved.</p>
+      <h2>Request sent</h2>
+      <p>Thank you. I'll reply to <strong id="submitted-email"></strong> to arrange the demo.</p>
     </div>
   </div>
   <div class="card-footer">
-    <a href="https://requirements-assistant.fastwilll.workers.dev/preview"><i class="ti ti-arrow-left"></i> Back to overview</a>
-    <span class="card-footer-brand">Requirements Assistant &middot; Alberto Pavani &middot; <span style="font-size:10px;font-weight:500;color:var(--text3,#9A9A9E);letter-spacing:.04em;opacity:.7;">v1.0</span></span>
+    <a href="#" id="back-link"><i class="ti ti-arrow-left"></i> Back</a>
+    <span class="card-footer-brand">Alberto Pavani &middot; <span style="font-size:10px;font-weight:500;color:var(--text3,#9A9A9E);letter-spacing:.04em;opacity:.7;">v1.1</span></span>
   </div>
 </div>
 
 <script>
 var ENDPOINT = 'https://formspree.io/f/xvzyygaw';
+var SUBMIT_LABEL = '<i class="ti ti-send"></i> Send request';
 var form = document.getElementById('access-form');
 var successState = document.getElementById('success-state');
 var submitBtn = document.getElementById('submit-btn');
 var errorBanner = document.getElementById('error-banner');
+var projectSelect = document.getElementById('project');
+var backLink = document.getElementById('back-link');
+
+// Preselect the project when the page is opened as /request-access/?project=demand-agent
+(function () {
+  var key = new URLSearchParams(window.location.search).get('project');
+  if (!key) return;
+  for (var i = 0; i < projectSelect.options.length; i++) {
+    if (projectSelect.options[i].getAttribute('data-key') === key) { projectSelect.selectedIndex = i; break; }
+  }
+})();
+
+// "Back" returns to wherever the visitor came from; hidden when there is nowhere to go back to
+if (window.history.length <= 1) { backLink.style.visibility = 'hidden'; }
+backLink.addEventListener('click', function (e) { e.preventDefault(); window.history.back(); });
 
 form.addEventListener('submit', function(e) {
   e.preventDefault();
@@ -129,6 +157,7 @@ form.addEventListener('submit', function(e) {
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Sending...';
   var email = document.getElementById('email').value;
+  document.getElementById('subject').value = 'New demo request — ' + projectSelect.value;
   fetch(ENDPOINT, { method:'POST', body: new FormData(form), headers:{'Accept':'application/json'} })
   .then(function(res) {
     if (res.ok) {
@@ -143,7 +172,7 @@ form.addEventListener('submit', function(e) {
     document.getElementById('error-msg').textContent = err.message || 'Something went wrong.';
     errorBanner.classList.add('visible');
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="ti ti-send"></i> Send access request';
+    submitBtn.innerHTML = SUBMIT_LABEL;
   });
 });
 </script>
