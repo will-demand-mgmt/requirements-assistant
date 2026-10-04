@@ -594,7 +594,7 @@ function buildSystemPromptWithDoc(basePrompt) {
           <div class="provider-icon">⚡</div>
           <div class="provider-info">
             <div class="provider-name">Groq</div>
-            <div class="provider-limit">Free · 14,400 requests/day · Llama 3.3 70B</div>
+            <div class="provider-limit">Free · GPT-OSS 120B</div>
           </div>
           <div class="provider-badge">Recommended</div>
         </label>
@@ -1447,7 +1447,7 @@ async function callGemini(systemInstruction, contents) {
         response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": "Bearer " + apiKey },
-          body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages, max_tokens: 4096, temperature: 0.7 })
+          body: JSON.stringify({ model: "openai/gpt-oss-120b", messages, max_tokens: 4096, temperature: 0.7 })
         });
         if (!response.ok) {
           const err = await response.json().catch(() => ({}));
