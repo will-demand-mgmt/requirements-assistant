@@ -4,15 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Requirements Intelligence Assistant</title>
-<script>
-(function(){
-  var AUTH_KEY = 'ra_auth';
-  if (sessionStorage.getItem(AUTH_KEY) !== 'true') {
-    var next = encodeURIComponent(window.location.pathname + window.location.search);
-    window.location.replace('/login?next=' + next);
-  }
-})();
-</script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -1197,7 +1188,7 @@ function navigateTo(e, url) {
   <div style="font-size:11px;color:#6b7a8d;text-align:right;">
     <div style="color:#a0aec0;font-weight:500;">Requirements Intelligence Assistant</div>
     <div style="margin-top:2px;">Powered by multi-provider AI &nbsp;·&nbsp;
-      <a href="/login" onclick="sessionStorage.removeItem('ra_auth')" style="color:#6b7a8d;text-decoration:none;transition:color .13s;" onmouseover="this.style.color='#00e5a0'" onmouseout="this.style.color='#6b7a8d'">Sign out</a>
+      <a href="/cdn-cgi/access/logout" style="color:#6b7a8d;text-decoration:none;transition:color .13s;" onmouseover="this.style.color='#00e5a0'" onmouseout="this.style.color='#6b7a8d'">Sign out</a>
     </div>
   </div>
 </footer>
